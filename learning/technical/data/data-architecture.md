@@ -3,7 +3,7 @@
 Architect-level reference on how to store, model, replicate, partition, evolve,
 and cache data in a distributed system. Companion to the unanswered question list
 in [database-and-data-architecture-questions.md](database-and-data-architecture-questions.md)
-and to [../architecture-and-system-design/cap-theorem.md](../architecture-and-system-design/cap-theorem.md).
+and to [../architecture/cap-theorem.md](../architecture/cap-theorem.md).
 
 ## Contents
 
@@ -56,7 +56,7 @@ Ask these in order. The answers usually eliminate all but one or two options.
 2. **What consistency does each operation need?** Linearizable (a balance, an
    inventory count, a unique username) vs eventual (a feed, a product page, a
    recommendation). Per-operation, not per-system — see
-   [cap-theorem.md](../architecture-and-system-design/cap-theorem.md).
+   [cap-theorem.md](../architecture/cap-theorem.md).
 3. **What is the read:write ratio and absolute volume?** 1000:1 reads → cache +
    replicas. Write-heavy at scale → LSM-based store, partitioning from day one.
 4. **How structured and how variable is the data?** Fixed relational schema,

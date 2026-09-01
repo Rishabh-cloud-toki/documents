@@ -4,7 +4,7 @@ Architect-level reference on defining reliability targets (SLIs / SLOs / error
 budgets), instrumenting systems (metrics, logs, traces), alerting on what
 matters, and running incidents. Companion to the circuit-breaker / bulkhead /
 resilience material in
-[../architecture-and-system-design/system-design-principles-and-resilience-patterns.md](../architecture-and-system-design/system-design-principles-and-resilience-patterns.md).
+[../architecture/system-design-principles-and-resilience-patterns.md](../architecture/system-design-principles-and-resilience-patterns.md).
 
 ## Contents
 

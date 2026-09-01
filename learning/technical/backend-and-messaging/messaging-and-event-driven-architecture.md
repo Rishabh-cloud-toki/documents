@@ -3,7 +3,7 @@
 Architect-level reference on asynchronous messaging, Kafka internals, delivery
 semantics, event design, and the event-driven architecture styles. Companion to
 the saga / outbox / async-communication sections in
-[../microservices-and-spring-boot/spring-boot-and-microservices-qa.md](../microservices-and-spring-boot/spring-boot-and-microservices-qa.md).
+[spring-boot-and-microservices-qa.md](spring-boot-and-microservices-qa.md).
 
 ## Contents
 

@@ -10,7 +10,7 @@ Tick items off as notes are written and linked into [README.md](README.md).
 
 ## Security architecture
 
-Current coverage is thin — [security/jwt-and-oauth-authentication.md](security/jwt-and-oauth-authentication.md)
+Current coverage is thin — [technical/security/jwt-and-oauth-authentication.md](technical/security/jwt-and-oauth-authentication.md)
 is only JWT / OAuth / Okta mechanics. An architect is expected to own:
 
 - [ ] **Threat modeling** — STRIDE, attack trees, trust boundaries, data-flow diagrams for security
@@ -49,7 +49,7 @@ From the earlier architect-POV review — see the conversation for detail:
 
 ### Existing stubs to fill in
 
-- [ ] [gen-ai/gen-ai-basics.md](gen-ai/gen-ai-basics.md) — the RAG pipeline section is marked TODO
-- [ ] [data-and-persistence/database-and-data-architecture-questions.md](data-and-persistence/database-and-data-architecture-questions.md) — unanswered question list (much now covered by [data-architecture.md](data-and-persistence/data-architecture.md))
-- [ ] [design-principles-and-patterns/design-patterns-reading-list.md](design-principles-and-patterns/design-patterns-reading-list.md) — "Topics to Read" placeholder
-- [ ] [gen-ai/gen-ai-advanced-reading-list.md](gen-ai/gen-ai-advanced-reading-list.md) — topics-to-read list
+- [ ] [technical/gen-ai/gen-ai-basics.md](technical/gen-ai/gen-ai-basics.md) — the RAG pipeline section is marked TODO
+- [ ] [technical/data/database-and-data-architecture-questions.md](technical/data/database-and-data-architecture-questions.md) — unanswered question list (much now covered by [data-architecture.md](technical/data/data-architecture.md))
+- [ ] [technical/architecture/design-patterns-reading-list.md](technical/architecture/design-patterns-reading-list.md) — "Topics to Read" placeholder
+- [ ] [technical/gen-ai/gen-ai-advanced-reading-list.md](technical/gen-ai/gen-ai-advanced-reading-list.md) — topics-to-read list
