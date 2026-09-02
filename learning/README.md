@@ -34,7 +34,7 @@ management/
 
 This is a reorganised version of notes that previously lived in `converted_notes/`
 and `engineering_manager/`. **No original note content was edited** — files were
-moved, grouped into topic folders, and renamed for clarity. Four notes were newly
+moved, grouped into topic folders, and renamed for clarity. Five notes were newly
 written to fill architect-level gaps (see [technical/README.md](technical/README.md#newly-written-notes)).
 The original `.pages` sources in `mac_notes/` and earlier drafts in
 `converted_notes/old/` were left untouched.

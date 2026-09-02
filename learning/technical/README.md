@@ -18,7 +18,7 @@ Go through these top to bottom — each builds loosely on the previous ones.
 | 1 | [Interview question bank](interview-prep/interview-question-bank.md) | Interview prep | 📋 |
 | 2 | [System design principles & resilience patterns](architecture/system-design-principles-and-resilience-patterns.md) | Architecture | ✅ |
 | 3 | [CAP theorem](architecture/cap-theorem.md) | Architecture | ✅ |
-| 4 | [New system design approach](architecture/new-system-design-approach.md) | Architecture | 🌱 |
+| 4 | [How to design a system from scratch](architecture/system-design-approach.md) *(newly written)* | Architecture | ✅ |
 | 5 | [Architecture & design patterns — checklist](architecture/architecture-and-design-patterns-checklist.md) | Architecture | 📋 |
 | 6 | [Architecture & design patterns — Q&A](architecture/architecture-and-design-patterns-qa.md) | Architecture | ✅ |
 | 7 | [Diagramming & design tools](architecture/diagramming-and-design-tools.md) | Architecture | ✅ |
@@ -42,7 +42,7 @@ Go through these top to bottom — each builds loosely on the previous ones.
 - [interview-prep/interview-question-bank.md](interview-prep/interview-question-bank.md) — 📋 Master checklist of interview questions across Spring Boot & microservices, architecture & design patterns, database & data architecture, cloud & DevOps, non-functional requirements, leadership & communication, and system design. Questions only, no answers.
 
 ### Architecture
-- [architecture/new-system-design-approach.md](architecture/new-system-design-approach.md) — 🌱 Skeleton of a system-design method: requirements gathering, ubiquitous language, scope (context/component diagrams), DDD, hexagonal/clean/onion/layered, tech stack, inter-service communication & security, deployment and testing strategy. Includes the *"Smart Architects Really Make Perfect System Foundations"* mnemonic.
+- [architecture/system-design-approach.md](architecture/system-design-approach.md) — ✅ *(newly written)* A 13-step walkthrough of designing a system from scratch, each step ending in a worked artifact filled in for a running flight-booking example: understand the problem & NFRs, draw the system boundary (C4 context + integration register), model the domain (event storming, ubiquitous language), decide bounded contexts (context map), make the expensive-to-reverse decisions (ADRs), choose deployment & communication style together (hop table), draw the containers, design the contracts (API spec, event catalogue, error model, idempotency), sequence diagrams with compensation tables, data model per context (ownership & duplication), deployment register, cross-cutting concerns (observability, resilience, security), and phase the delivery (risk register). Ends with how the artifacts map onto an HLD.
 - [architecture/system-design-principles-and-resilience-patterns.md](architecture/system-design-principles-and-resilience-patterns.md) — ✅ The system-design principles list (Scalability, Availability, Reliability, Maintainability, Performance, Security, Fault Tolerance, CAP, Observability, Modularity, API Design, Cost Efficiency) with a memory phrase, plus Circuit Breaker, Bulkhead, distributed error-handling strategies in Spring Boot, and FeignClient notes.
 - [architecture/cap-theorem.md](architecture/cap-theorem.md) — ✅ Precise reference on the CAP theorem: formal definitions of consistency (linearizability), availability, and partition tolerance; the real CP-vs-AP choice during a partition; common misconceptions; the PACELC extension (consistency/latency trade-off outside partitions); the consistency spectrum; a worked example; system classifications; and how to use it in a design discussion. *(Newly written — not from the original notes.)*
 - [architecture/architecture-and-design-patterns-checklist.md](architecture/architecture-and-design-patterns-checklist.md) — 📋 "High-impact 20%" checklist: architectural styles, system-design essentials, cloud & DevOps, security architecture, observability, and the core creational / structural / behavioural / concurrency / enterprise-integration design patterns, plus Spring Boot–specific patterns.
@@ -82,6 +82,7 @@ cover topics central to an architect's role but missing or only stubbed:
 | Note | Why it was added |
 |---|---|
 | [architecture/cap-theorem.md](architecture/cap-theorem.md) | The old `CAP Theorem.md` file actually contained JWT/OAuth content; there were no real CAP notes. |
+| [architecture/system-design-approach.md](architecture/system-design-approach.md) | The old `New System Design Approach.md` was a bare bullet-list skeleton; replaced with a full step-by-step walkthrough ending in worked artifacts. |
 | [backend-and-messaging/messaging-and-event-driven-architecture.md](backend-and-messaging/messaging-and-event-driven-architecture.md) | Kafka and events were referenced everywhere but never explained — delivery semantics, ordering, schema evolution, EDA styles. |
 | [data/data-architecture.md](data/data-architecture.md) | Data was the biggest gap — only an unanswered question list existed. Replication, sharding, isolation levels, caching, CQRS/ES, migrations. |
 | [reliability-and-observability/slos-and-observability.md](reliability-and-observability/slos-and-observability.md) | Resilience patterns were covered but not the operational side — SLOs, error budgets, the three telemetry signals, incident response. |
@@ -106,7 +107,7 @@ All other notes are the original files, moved and renamed only.
 | `converted_notes/Gen AI Advanced.md` | `technical/gen-ai/gen-ai-advanced-reading-list.md` |
 | `converted_notes/Gen AI basics.md` | `technical/gen-ai/gen-ai-basics.md` |
 | `converted_notes/Microservices.md` | `technical/backend-and-messaging/spring-boot-and-microservices-qa.md` |
-| `converted_notes/New System Design Approach.md` | `technical/architecture/new-system-design-approach.md` |
+| `converted_notes/New System Design Approach.md` | `technical/architecture/system-design-approach.md` (rewritten — see [Newly written notes](#newly-written-notes)) |
 | `converted_notes/System_Design_Principles.md` | `technical/architecture/system-design-principles-and-resilience-patterns.md` |
 
 *Left untouched:* `converted_notes/old/`, `mac_notes/`.
