@@ -1,32 +1,21 @@
-# Sabre — Manager, Software Engineering: Interview Prep
+# Manager, Software Engineering — Interview Prep
 
 Prioritised by **likelihood of being asked × risk that your current answer is weak**.
 Work top-down. If you only have two hours, do P1 and P2.
 
----
-
-## Before anything: the context that changes your answers
-
-Sabre in 2026 is not the Sabre of the JD boilerplate. Key facts to know cold:
-
-- At ITB Berlin (March 2026) Sabre announced the completion of a multi-year rebuild — a single unified **AI-first platform**, cloud-native, continuously deployable, with a new brand identity. They now describe themselves as an "AI-native technology leader."
-- The platform is **Sabre Mosaic** — modular, open, API-based, Offer & Order (moving away from the legacy PNR/EDIFACT model), powered by **Google Gemini**, sitting on a "Travel Data Cloud" of 50+ petabytes.
-- Sabre is **single-cloud on GCP** (10-year, ~$2B partnership). Not multi-cloud, deliberately. GKE, Cloud Functions, Bigtable (shopping cache), Spanner-class consistency for reservations, BigQuery, Looker, Vertex AI.
-- They are pushing hard on **agentic AI**: an **MCP server** exposing shopping/booking/servicing workflows to AI agents, live with customers (Linex Travel/Ultra Group, BizTrip AI, PayPal + Mindtrip partnership). Also **Concierge IQ** (GenAI assistant for airlines) and an **IQ Assurance Layer** for AI governance — explainability, bias detection, audit trails, GDPR/ISO 42001.
-- Feb 2026: "Cache-powered Intelligent Shopping" — sub-half-second shopping responses with ~95% alignment to live airline offers. That's a *great* thing to ask about in a technical discussion.
-- Business context: Q1 2026 beat expectations (EPS $0.02, revenue ~$760M), stock up sharply YTD, but the company carries heavy debt and has been doing refinancing/exchange offers. So: **cost discipline matters**. Frame everything you say about scale in terms of cost-aware scale.
-
-**Your unfair advantage:** you already built a Gen AI chatbot *for Sabre* at Infosys on Gemini 1.5 Flash + Vertex AI. Lead with that. You know their domain, their cloud, and their AI stack. Say it in the first two minutes.
+> Target: an engineering-management role at a large travel-technology company.
+> Company specifics below are generalised — swap in the real names, dates, and
+> figures from your own research before the interview.
 
 ---
 
 ## P1 — People management (your biggest risk area)
 
-**Why this is P1 for you:** your title history reads architect-heavy. You've been a Project Manager since July 2025; before that, Technical Architect at Infosys. The panel will probe hard on whether you have actually *managed people* — reviews, ratings, hiring, firing, growth — versus managed delivery. Prepare concrete, named, dated examples. Vague answers here will sink you regardless of how strong your technical answers are.
+**Why this is P1 for you:** your title history reads architect-heavy. You moved into a delivery/management role in 2025; before that you were a Technical Architect. The panel will probe hard on whether you have actually *managed people* — reviews, ratings, hiring, firing, growth — versus managed delivery. Prepare concrete, named, dated examples. Vague answers here will sink you regardless of how strong your technical answers are.
 
 **Q1. Tell me about the team you lead today.**
 Structure: size, composition, what you own end-to-end, what changed since you took over.
-> "I lead the Intelligent Machinery engineering teams at Yamaha Motor Solutions India — [N] engineers across [application / platform / QA / data]. I own delivery for [X], plus two Gen AI initiatives: automated documentation generation and a tech-stack migration. I report to [Y] and my stakeholders are [Z]. When I took over, [problem]; today [measurable change]."
+> "I lead the engineering teams for [product area] at [current employer] — [N] engineers across [application / platform / QA / data]. I own delivery for [X], plus two Gen AI initiatives: automated documentation generation and a tech-stack migration. I report to [Y] and my stakeholders are [Z]. When I took over, [problem]; today [measurable change]."
 
 Have the numbers ready: team size, number of direct reports, how many you've hired, how many you've promoted, attrition rate.
 
@@ -61,7 +50,7 @@ Delegation of *decisions*, not just tasks. Design authority pushed to tech leads
 
 **Q10. How do you translate a business objective into an engineering plan?**
 Have a repeatable method, then a real example.
-> "Objective → measurable outcome → constraints → slices. I start by forcing the business owner to state the success metric and the date that matters and why. Then I work backwards into thin vertical slices that each deliver something demonstrable, sequence by risk not by convenience — hardest unknown first — and I make the trade-off explicit in writing: here's scope A by date X, or full scope by date Y. Example: [Fareworks / Yamaha migration]."
+> "Objective → measurable outcome → constraints → slices. I start by forcing the business owner to state the success metric and the date that matters and why. Then I work backwards into thin vertical slices that each deliver something demonstrable, sequence by risk not by convenience — hardest unknown first — and I make the trade-off explicit in writing: here's scope A by date X, or full scope by date Y. Example: [your migration project]."
 
 ---
 
@@ -97,7 +86,7 @@ The test for whether something is really a slice: *could the person who asked fo
 
 ---
 
-## The example — project insights platform, Yamaha
+## The example — project insights platform
 
 **The reframe.** The ask came in as "build an AI dashboard for management over our JIRA data." I went back and asked what decision it was meant to change. The real answer was that project risk was surfacing at the monthly review, which is weeks after it becomes visible in the data — by then the recovery options are expensive. So the objective became: **surface an at-risk project [N] weeks earlier than the current review cycle.** That's measurable, and it told us what to build.
 
@@ -160,9 +149,9 @@ One-page, decision-first, no jargon. Status in terms of risk to the business out
 They will test whether you can "engage deeply and review designs." Expect a design discussion, not LeetCode.
 
 **Q17. Design a flight shopping / offer service that answers in under 500ms at high volume.**
-This is essentially Sabre's own problem — prepare it properly. Cover:
+This is essentially the company's own core problem — prepare it properly. Cover:
 - Read path vs write path separation; shopping is read-heavy and latency-critical, booking is write-heavy and consistency-critical.
-- Pre-computed cache of priced itineraries (this is exactly Sabre's "cache-powered intelligent shopping"), with a freshness/accuracy trade-off — how close to live airline offers, and how you measure the drift.
+- Pre-computed cache of priced itineraries (this maps directly onto the company's pre-computed shopping cache), with a freshness/accuracy trade-off — how close to live airline offers, and how you measure the drift.
 - Cache invalidation strategy and TTL by volatility of the route.
 - Fan-out to suppliers with per-supplier timeouts and partial results — return what you have rather than fail whole.
 - Bulkheads so one slow supplier can't consume the thread pool.
@@ -189,10 +178,10 @@ Have one ready. The point they're testing: do you review by opinion or by trade-
 ## P4 — AI-embedded application stack (your differentiator — make it count)
 
 **Q23. Tell me about the Gen AI system you built.**
-Lead with the Sabre chatbot: Gemini 1.5 Flash on Vertex AI, Dialogflow CX, why Flash (latency and cost per conversation at that volume), the grounding approach, what went wrong and how you fixed it. Then the Yamaha work — Gen AI for documentation and for tech-stack migration — and the JIRA insights dashboard your team is building.
+Lead with the travel-domain chatbot: Gemini 1.5 Flash on Vertex AI, Dialogflow CX, why Flash (latency and cost per conversation at that volume), the grounding approach, what went wrong and how you fixed it. Then your current work — Gen AI for documentation and for tech-stack migration — and the project-insights dashboard your team is building.
 
 **Q24. How do you stop an LLM feature from hallucinating in production?**
-This is the question that separates people who've shipped from people who've demoed. Your JIRA dashboard requirements are the perfect answer material:
+This is the question that separates people who've shipped from people who've demoed. Your project-insights dashboard requirements are the perfect answer material:
 > "Three rules I hold teams to. One: every insight must be traceable to the underlying data, and the system must be able to show *which* data produced it — not just assert it. Two: AI output is visibly labelled as AI output, so a manager reading a dashboard knows what's a computed KPI and what's a generated interpretation. Three: the deterministic parts stay deterministic — health thresholds for a project are explicit rules, not something the model decides. The model interprets and explains; it doesn't get to define the metric."
 Then add: retrieval grounding with citations, structured output with schema validation, constrained tool use, and an eval set with regression gates in CI.
 
@@ -200,7 +189,7 @@ Then add: retrieval grounding with citations, structured output with schema vali
 Golden dataset, offline evals run in the pipeline, LLM-as-judge with human spot-checks, online metrics (deflection rate, escalation rate, task completion), and a rollback plan. Say plainly that "it looked good in the demo" is not an acceptance criterion.
 
 **Q26. Agentic AI and MCP.**
-Sabre has bet the company on this — be conversant. Know what MCP is (a standard protocol for exposing tools/resources to models so agents can call real systems), and the engineering problems it creates: authorisation and scoping per agent, idempotency when an agent retries a booking, audit trails, cost control on unbounded tool loops, and prompt injection when the agent reads untrusted content. If you can name **prompt injection via tool results** as a threat you'll stand out.
+The company has bet heavily on this — be conversant. Know what MCP is (a standard protocol for exposing tools/resources to models so agents can call real systems), and the engineering problems it creates: authorisation and scoping per agent, idempotency when an agent retries a booking, audit trails, cost control on unbounded tool loops, and prompt injection when the agent reads untrusted content. If you can name **prompt injection via tool results** as a threat you'll stand out.
 
 **Q27. How do you decide *where* AI belongs in a product?**
 Your own stated principle is strong: AI where it genuinely adds value, not decoratively. Give the counter-example — a place you decided *not* to use a model and used rules or a query instead, because it was cheaper, faster, and testable.
@@ -212,7 +201,7 @@ Standards for review of AI-generated code, no unreviewed generated code in main,
 
 ## P5 — Data: SQL and NoSQL (prep this — it's your thinnest area vs the JD)
 
-Your background is PostgreSQL/Oracle-heavy. The JD asks for both, and Sabre's own architecture is a case study in picking per workload.
+Your background is PostgreSQL/Oracle-heavy. The JD asks for both, and the company's own architecture is a case study in picking per workload.
 
 **Q29. When do you choose NoSQL over relational?**
 Frame it as access patterns and consistency requirements, not preference.
@@ -229,13 +218,13 @@ Don't run analytics on your transactional store. Event stream → BigQuery for a
 ## P6 — Cloud-native and GCP
 
 **Q32. Name the GCP services you'd reach for and why.**
-GKE for long-running services, Cloud Run for bursty/stateless, Pub/Sub for async decoupling, Bigtable for high-throughput low-latency lookups, Spanner where you need horizontal scale *with* strong consistency, BigQuery for analytics, Vertex AI for model serving and evaluation, Apigee at the API perimeter, Cloud Load Balancing + multi-region for availability. Mention Sabre's deliberate single-cloud choice and why it's defensible: depth of integration and negotiated economics beat theoretical portability.
+GKE for long-running services, Cloud Run for bursty/stateless, Pub/Sub for async decoupling, Bigtable for high-throughput low-latency lookups, Spanner where you need horizontal scale *with* strong consistency, BigQuery for analytics, Vertex AI for model serving and evaluation, Apigee at the API perimeter, Cloud Load Balancing + multi-region for availability. Mention the company's deliberate single-cloud choice and why it's defensible: depth of integration and negotiated economics beat theoretical portability.
 
 **Q33. How do you design for scalability and resiliency at multi-region scale?**
 Stateless services, horizontal autoscaling on the right signal (queue depth or latency, not CPU), multi-region active-active with data replication, defined RTO/RPO, SLOs with error budgets, and — the part people forget — actually testing failover.
 
 **Q34. How do you manage cloud cost?**
-Given Sabre's debt position, this scores well. Cost per transaction as a tracked metric, right-sizing, autoscaling floors, tiered storage, and for AI specifically: model tiering (small model by default, escalate only when needed), caching, prompt/context size discipline, batch where latency allows.
+Given the company's debt position, this scores well. Cost per transaction as a tracked metric, right-sizing, autoscaling floors, tiered storage, and for AI specifically: model tiering (small model by default, escalate only when needed), caching, prompt/context size discipline, batch where latency allows.
 
 ---
 
@@ -253,9 +242,9 @@ DORA four: deployment frequency, lead time for change, change failure rate, MTTR
 
 Ask questions that only someone who did the homework could ask:
 
-1. "The ITB announcement framed the rebuild as complete and the company as entering the value-creation phase. For the team I'd be managing — how much of the work now is new capability on Mosaic versus decommissioning what the rebuild replaced?"
-2. "You're live with MCP-enabled workflows at customers. Where does the hard engineering sit right now — the agent side, or the guardrails and governance in the IQ Assurance Layer?"
-3. "Intelligent Shopping is hitting sub-500ms with ~95% alignment to live offers. Is the current work pushing latency further down, or pushing that alignment number up?"
+1. "The rebuild was framed as complete, with the company entering a value-creation phase. For the team I'd be managing — how much of the work now is new capability on the new platform versus decommissioning what the rebuild replaced?"
+2. "You're live with MCP-enabled workflows at customers. Where does the hard engineering sit right now — the agent side, or the guardrails and governance in the assurance layer?"
+3. "The shopping cache is hitting sub-500ms with high alignment to live offers. Is the current work pushing latency further down, or pushing that alignment number up?"
 4. "How is the team split across application, platform, quality and data, and how much of that reports into this role?"
 5. "What does success look like at six months for whoever takes this job — and what's the thing the last person found hardest?"
 
@@ -267,6 +256,6 @@ Ask questions that only someone who did the homework could ask:
 - [ ] Three for **delivery** (late project, stakeholder disagreement, ownership of a failure)
 - [ ] Two for **technical judgement** (a design call you made, a design call you got wrong)
 - [ ] Numbers memorised: team size, direct reports, hires, promotions, attrition, throughput or latency figures from your systems
-- [ ] Your 90-second opener, ending on the Sabre chatbot work
-- [ ] Read the ITB Berlin 2026 press release and the Sabre Mosaic product page the morning of the interview
+- [ ] Your 90-second opener, ending on the travel-domain chatbot work
+- [ ] Re-read the company's latest platform announcement and product pages the morning of the interview
 - [ ] Gaps to shore up tonight: **NoSQL data modelling** and **gRPC specifics** — these are the two JD lines your background covers thinnest

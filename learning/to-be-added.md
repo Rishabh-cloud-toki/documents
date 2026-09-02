@@ -17,7 +17,7 @@ is only JWT / OAuth / Okta mechanics. An architect is expected to own:
 - [ ] **OWASP Top 10** and **OWASP API Security Top 10**
 - [ ] **Secrets management and key rotation** — Vault / cloud KMS, envelope encryption, encryption at rest and in transit, mTLS
 - [ ] **Authorization models beyond RBAC** — ABAC, ReBAC, policy engines (OPA / Cedar)
-- [ ] **Audit logging and compliance framing** — GDPR, PCI-DSS, SOC 2, ISO 42001 (the last matters given the Sabre AI-governance angle)
+- [ ] **Audit logging and compliance framing** — GDPR, PCI-DSS, SOC 2, ISO 42001 (the last matters given the AI-governance angle in the target role)
 - [ ] **Supply-chain security** — SBOM, dependency scanning, container image scanning
 - [ ] **PII handling** — tokenization, data residency
 

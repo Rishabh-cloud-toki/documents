@@ -1,6 +1,6 @@
 # Ten More Project Management Questions
 
-*Interview prep — Manager, Software Engineering @ Sabre*
+*Interview prep — Manager, Software Engineering*
 
 These are the delivery-management questions most likely to come up that **aren't** already in the main prep doc. Each one has a trap in it — the trap is noted so you can avoid walking into it.
 
@@ -44,7 +44,7 @@ These are the delivery-management questions most likely to come up that **aren't
 
 ## 4. How do you manage dependencies on teams you don't control?
 
-**Highly relevant at Sabre** — a modular platform means your team's work will sit behind other teams' APIs.
+**Highly relevant here** — a modular platform means your team's work will sit behind other teams' APIs.
 
 > "Dependencies are the single biggest source of slip in a large organisation, and they're the thing a plan usually models worst. Three habits.
 >
@@ -90,7 +90,7 @@ These are the delivery-management questions most likely to come up that **aren't
 
 ## 8. How do you deliver a modernisation or migration that has no visible business feature attached to it?
 
-**Prepare this one properly.** Sabre has just come out the far side of a multi-year rebuild — this question is likely, and your Yamaha tech-stack migration is the answer.
+**Prepare this one properly.** The company has just come out the far side of a multi-year rebuild — this question is likely, and your tech-stack migration work is the answer.
 
 > "The two failure modes are the big-bang rewrite and the migration that stalls at 80% because attention moved on. I plan against both.
 >
@@ -104,7 +104,7 @@ These are the delivery-management questions most likely to come up that **aren't
 
 ## 9. How do you run a team that's split across time zones from its stakeholders?
 
-**Very likely relevant** — Sabre is Southlake-headquartered with global engineering.
+**Very likely relevant** — the company is US-headquartered with globally distributed engineering.
 
 > "Distance punishes anything that depends on synchronous conversation, so I move as much as possible to writing. Decisions, design records, status — written and durable, so nobody's blocked waiting for an overlap window.
 >

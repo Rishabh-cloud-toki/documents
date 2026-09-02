@@ -27,7 +27,7 @@ technical/
   interview-prep/                cross-topic technical question bank
 management/
   project-management-questions.md
-  sabre-engineering-manager-prep.md
+  engineering-manager-prep.md
 ```
 
 ## History
