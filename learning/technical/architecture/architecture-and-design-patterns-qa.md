@@ -14,10 +14,15 @@ Q&A-style notes on system design, DDD, layered architectures, and scalability.
 8. [Where does `@Service` sit in Clean Architecture?](#8-where-does-service-sit-in-clean-architecture)
 9. [What is DDD and how do you apply it?](#9-what-is-domain-driven-design-ddd-how-do-you-apply-it-in-real-world-applications)
 10. [Designing for scalability and high availability](#10-how-do-you-design-for-scalability-and-high-availability)
+11. [Appendix: Q&A deep-dives](#appendix-qa-deep-dives)
 
 ---
 
 ## 1. How do you approach designing a new system from scratch?
+
+> Fuller treatment: [How to design a system from scratch](system-design-approach.md)
+> — the same steps as a 13-step walkthrough, each ending in a worked artifact for
+> a running flight-booking example.
 
 Designing a system from scratch means balancing technical excellence against real-world constraints — scale, availability, team size, timelines. A structured approach:
 
@@ -97,6 +102,10 @@ Designing a system from scratch means balancing technical excellence against rea
 
 ## 2. What is domain modeling?
 
+> Deep-dive: [domain modeling is more than classes](#deep-dive-domain-modeling-is-more-than-classes)
+> — the six places a model shows up, why the domain model isn't the data model,
+> and the "context is logical, service is physical" correction.
+
 Domain modeling is the process of representing core business concepts, rules, and logic as software structures. It's a fundamental part of Domain-Driven Design.
 
 **Domain** — the business problem being solved. In a banking application: accounts, customers, transactions.
@@ -155,6 +164,11 @@ Repositories:
 
 ## 4. What's the difference between monolithic, microservices, and modular monolith architectures?
 
+> Deep-dive: [domain modeling is more than classes](#deep-dive-domain-modeling-is-more-than-classes)
+> — a bounded context is *logical*; it may become a microservice, a module in a
+> larger deployable, or span several services. "Each microservice owns one
+> context" (and Q2's table row) is a shortcut, not a rule.
+
 ### Monolithic architecture
 
 A single unified application where all modules are part of one deployable unit.
@@ -203,6 +217,12 @@ A system broken into independent, loosely coupled services, each owning its own 
 ---
 
 ## 5. Explain Hexagonal (Ports & Adapters) / Clean Architecture. Have you used them?
+
+> Deep-dives: [hexagonal, clean and onion are one pattern](#deep-dive-hexagonal-clean-and-onion-are-one-pattern)
+> — two layers not three, driving vs driven ports, the naming trap, and "have you
+> used it" meaning "do you know when not to"; [clean architecture, worked](#deep-dive-clean-architecture-worked)
+> — the Booking-service package structure, the aggregate with no setters, and the
+> GDS anticorruption adapter.
 
 ### Hexagonal Architecture (Ports and Adapters)
 
@@ -262,6 +282,10 @@ Layers from innermost outward:
 ---
 
 ## 6. Explain layered architecture (Onion, N-tier)
+
+> Deep-dive: [hexagonal, clean and onion are one pattern](#deep-dive-hexagonal-clean-and-onion-are-one-pattern)
+> — Onion, Clean and Hexagonal are three descriptions of one idea; the only real
+> distinction is Clean's explicit use-case layer.
 
 ### Onion Architecture
 
@@ -349,6 +373,11 @@ public class StripePaymentGateway implements PaymentGateway {
 
 ## 8. Where does `@Service` sit in Clean Architecture?
 
+> Deep-dive: [clean architecture, worked](#deep-dive-clean-architecture-worked)
+> — the application layer is orchestration only, `@Service` / `@Transactional`
+> sit there and never in `domain/`, and if a business rule appears in the service
+> it is in the wrong place.
+
 A common source of confusion: use cases hold business rules, but Clean Architecture says entities and use cases should be pure Java with no Spring annotations — yet real projects are full of `@Service`.
 
 **The resolution:** in pure Clean Architecture, the use case logic sits in plain Java classes. The `@Service`-annotated class is an *adapter* — it sits in the interface-adapter/application layer and calls the pure use case.
@@ -412,6 +441,13 @@ To reduce class explosion. That's an acceptable pragmatic trade-off as long as t
 ---
 
 ## 9. What is Domain-Driven Design (DDD)? How do you apply it in real-world applications?
+
+> Deep-dives: [strategic DDD: context maps and event storming](#deep-dive-strategic-ddd-context-maps-and-event-storming)
+> — the strategic/tactical split, named context-map relationships, the event
+> storming method, and the six tests for a candidate map;
+> [tactical DDD: aggregates and the anemic model](#deep-dive-tactical-ddd-aggregates-and-the-anemic-model)
+> — the aggregate as a consistency boundary, invariants inside not at the caller,
+> and naming the anemic-domain anti-pattern.
 
 DDD, introduced by Eric Evans, is an approach to software development focused on modeling software around the business domain rather than around technology layers. It depends on close collaboration between technical and domain experts.
 
@@ -516,6 +552,306 @@ order-service/
 - **Observability:** Prometheus + Grafana, ELK/EFK, Jaeger/Zipkin; alerting and anomaly detection.
 - **Safe releases:** blue-green or canary deployments with fast rollback.
 - **Security:** secure fallback patterns; never leak sensitive data in error or fallback states.
+
+---
+
+## Appendix: Q&A deep-dives
+
+Deeper passes from working through this note — DDD and clean architecture beyond
+the interview-answer level, worked against a single flight-booking example. Full
+transcript: [ddd-and-clean-architecture.md](../notes/ddd-and-clean-architecture.md).
+Each block links back to the question it belongs to.
+
+- [Domain modeling is more than classes](#deep-dive-domain-modeling-is-more-than-classes) — Q2, Q4
+- [Strategic DDD: context maps and event storming](#deep-dive-strategic-ddd-context-maps-and-event-storming) — Q9
+- [Tactical DDD: aggregates and the anemic model](#deep-dive-tactical-ddd-aggregates-and-the-anemic-model) — Q9
+- [Hexagonal, clean and onion are one pattern](#deep-dive-hexagonal-clean-and-onion-are-one-pattern) — Q5, Q6
+- [Clean architecture, worked](#deep-dive-clean-architecture-worked) — Q5, Q8
+
+### Deep-dive: domain modeling is more than classes
+
+Relates to [What is domain modeling?](#2-what-is-domain-modeling) and
+[monolithic vs microservices vs modular monolith](#4-whats-the-difference-between-monolithic-microservices-and-modular-monolith-architectures).
+
+Classes are one way to write a model down, and the least interesting from an
+architect's seat. A model shows up in at least six places:
+
+| Where | Flight-system example |
+|---|---|
+| **Language** | The glossary. Deciding *quote* and *fare* are different words was modeling — no class existed yet. |
+| **Boundaries** | The context map. Modeling at system level, not object level. |
+| **Behaviour** | A booking goes HELD → CONFIRMED → TICKETED and can only be refunded after capture. A lifecycle, not a class diagram. |
+| **Process** | The saga. Airlines really do hold, then confirm, then ticket — copied from the business, not invented. |
+| **Contracts** | `BookingConfirmed` carrying passengers and segments but *not* payment details is a decision about what a confirmation means. |
+| **Data** | Cardinality, ownership, what is frozen vs live. |
+
+**Domain model ≠ data model.** The data model says what is *stored*; the domain
+model says what is *true and allowed*. "A booking must have ≥1 passenger" is a
+domain rule that happens to surface as a cardinality constraint. "A booking
+cannot be refunded before capture" is equally part of the model and has *no*
+schema representation at all — it lives in behaviour.
+
+**Two corrections to the notes-level view:**
+
+- *"Each microservice owns one bounded context"* — backwards. A context *may*
+  become a microservice; it may also be a module inside a larger deployable, or
+  span several services. The context is logical, the service is physical. (This
+  is why the "Each microservice owns one" cell in the Q2 table and the "each
+  becomes a microservice or a module" line in Q9 are shortcuts, not rules.)
+- *"DDD is system design"* — DDD is one *input*. It tells you what the business is
+  and where the seams are; it says nothing about deployment, scaling, caching,
+  infrastructure or DR.
+
+### Deep-dive: strategic DDD, context maps and event storming
+
+Relates to [What is DDD and how do you apply it?](#9-what-is-domain-driven-design-ddd-how-do-you-apply-it-in-real-world-applications).
+
+**DDD has two halves, and they aren't equal at architect level:**
+
+| | Strategic | Tactical |
+|---|---|---|
+| Question | How do we carve up the business? | How do we model this one area? |
+| Unit | Contexts, teams, systems | Classes, objects |
+| Output | Glossary, context map, core / supporting / generic | Entities, aggregates, value objects, events |
+| Owner | Architect | Tech lead, senior devs |
+| Cost of getting it wrong | Re-architecture | Refactoring |
+
+A badly modelled aggregate is a week of work. Badly drawn boundaries means two
+teams tripping over each other for two years — which is why strategic matters
+more from the architect's seat.
+
+**Context map — named relationships** (the part usually skipped, carrying the
+most information):
+
+| Relationship | Meaning | Flight example |
+|---|---|---|
+| **Customer–supplier** | One side is upstream, gives orders | Booking → Payment |
+| **Conformist** | Accept their model as-is, no leverage | The identity provider |
+| **Anticorruption layer** | Translate at the border so their model doesn't leak in | Both GDS integrations |
+| **Shared kernel** | Two contexts share a small piece of model — powerful and dangerous, every change needs two teams | Use rarely |
+| **Separate ways** | No integration; duplicating a little beats coupling | — |
+| **Open host service** | A stable published contract many consumers use | The event catalogue |
+
+**Event storming — the method** (most DDD notes leave it out): get business
+people in a room; write every significant thing that happens in past tense on
+stickies; arrange left-to-right in time order; add triggers and required data;
+clusters of events sharing vocabulary and data are your candidate contexts;
+classify each as core / supporting / generic. Half a day to two days. The
+core/supporting/generic call is the step that impresses, because it's a
+*prioritisation* decision, not a modelling exercise.
+
+**Stress-test a candidate context map:**
+
+- **Transaction test** — does any operation need atomic changes in two contexts?
+  Then you cut through the middle of something.
+- **Chattiness test** — sketch the main flows, count boundary crossings. Six in
+  one flow = wrong boundary.
+- **Change test** (the most useful) — take ten likely change requests; how many
+  contexts does each touch? If most touch four, the boundaries don't match how
+  the business evolves.
+- **Ownership test** — can one team own this end to end without waiting on another?
+- **Sentence test** — one sentence per context, no "and".
+- **Vocabulary test** — does any term mean two things inside one context?
+
+There is no formula that outputs a context map. You propose it from the domain
+conversation and your experience, then stress-test it — and saying that honestly
+in an interview beats pretending a method exists.
+
+### Deep-dive: tactical DDD, aggregates and the anemic model
+
+Relates to [What is DDD and how do you apply it?](#9-what-is-domain-driven-design-ddd-how-do-you-apply-it-in-real-world-applications)
+and the building blocks in [What is domain modeling?](#2-what-is-domain-modeling).
+
+One idea underneath all of tactical DDD: **put the rules on the object that owns
+them, and make illegal states impossible to create.**
+
+**Entity vs value object.** An entity has identity that survives change
+(passenger 4471 is the same passenger after a name fix). A value object is
+defined entirely by its values (₹8,400 is ₹8,400; interchangeable) — Money,
+airport code, date range. Rule: make it a value object unless you have a reason
+not to. They're immutable, self-validating, easy to test. `new Money(-500)`
+throws; a bare `BigDecimal` doesn't. Most codebases have too few value objects
+and too many raw strings.
+
+**Aggregate = a consistency boundary** — the set of things that must be true at
+the same instant. That definition is what makes the sizing rules follow:
+
+- **One aggregate per transaction.** If saving needs two atomically, they're
+  really one aggregate — or you need eventual consistency between them.
+- **Reference other aggregates by ID, not by object.** Booking holds a
+  `paymentId`, not a `Payment`. This is what stops aggregates silently merging
+  into one object graph.
+- **Keep them small.** The classic failure is `Customer` as a root containing
+  every order ever placed — load that to change a phone number and you've pulled
+  ten years of history.
+- **Anything outside the boundary is eventually consistent** — fine, if decided
+  deliberately.
+
+**Invariants** are enforced *inside* the aggregate, never by the caller: 1–9
+passengers, ≥1 segment, can't confirm without a valid unexpired hold, can't
+refund before capture, total = fares + taxes.
+
+**Domain events** are the tactical block that matters most to an architect,
+because events are what cross boundaries — entities and value objects stay inside
+a service. The event catalogue is tactical DDD leaking usefully into
+architecture.
+
+**Supporting cast:** a *domain service* is logic spanning two aggregates and
+belonging to neither (a through-fare across two carriers' segments) — if it fits
+inside one aggregate it isn't one, and a payment-gateway wrapper is usually an
+*application* service. A *repository* is one per aggregate root, not per table:
+`BookingRepository` returns whole bookings; there is no `PassengerRepository`
+because passengers aren't independently retrievable.
+
+**The anti-pattern to be able to name: anemic domain model** — entities with
+nothing but getters and setters, all logic in service classes. It looks like DDD
+because the names are right; it's procedural code with extra ceremony. The tell:
+`Booking` has thirty setters and `BookingService` is 900 lines. The consequence:
+"20 minutes" ends up in four places and three are wrong after the first change.
+Most Spring codebases are anemic.
+
+**When not to bother:** a CRUD-heavy admin screen doesn't need aggregates — plain
+entities and a service layer are correct there. Knowing where *not* to apply it
+is part of the skill.
+
+### Deep-dive: hexagonal, clean and onion are one pattern
+
+Relates to [Hexagonal / Clean Architecture](#5-explain-hexagonal-ports--adapters--clean-architecture-have-you-used-them)
+and [Layered architecture — Onion and N-tier](#6-explain-layered-architecture-onion-n-tier).
+
+**They are the same pattern.** Hexagonal (Cockburn), Onion (Palermo) and Clean
+(Martin) are three descriptions of one idea, with different diagrams and ring
+counts. The shared rule: **dependencies point inward, and the domain declares its
+own interfaces.** The one real distinction is Clean's explicit **use case layer**
+between entities and adapters — entities hold rules true across the whole
+business ("a booking has ≥1 passenger"), use cases hold rules specific to one
+operation ("confirming means re-validate, then hold, then charge"). Hexagonal
+doesn't insist on that split.
+
+**Two layers, not three.** A common mistake is drawing Adapters → Ports → Domain
+as three stacked layers, as if ports are a middle layer with their own code.
+**A port is an interface that lives inside the domain.** Two layers: domain
+(including its port interfaces) and adapters (implementations). The adapter
+depends on the domain; nothing points outward.
+
+**Ports come in two kinds** — the most useful part of the pattern, usually
+missed:
+
+- **Driving / inbound** — interfaces the outside world calls to make the domain
+  do something (`CreateBookingUseCase`, `SearchFlights`). The application layer
+  *implements* these; the REST controller *calls* them.
+- **Driven / outbound** — interfaces the domain calls to reach the outside world
+  (`BookingRepository`, `SeatInventory`, `PaymentProcessor`). The domain
+  *declares* these; infrastructure *implements* them.
+
+That asymmetry is the whole pattern: both sides depend on the domain, in opposite
+directions, which is what makes the domain testable with no framework at all.
+
+**The interface goes where it is used, not where it is implemented.**
+`BookingRepository` is defined in the domain package, not infrastructure — that's
+dependency inversion in one sentence. If the interface sits next to its
+implementation, nothing has been gained. **The naming trap:** calling a port
+`KafkaEventPublisher` means Kafka has leaked into the domain — the port is
+`EventPublisher`, and the Kafka adapter implements it.
+
+**Spring specifics:**
+
+- `domain/` compiles against nothing but the JDK — no framework annotation
+  anywhere.
+- **Keep JPA annotations off domain entities.** The moment `Booking` carries
+  `@Entity`, the domain depends on Hibernate. Use a separate persistence model
+  and map between them — more code, and it's the difference between the pattern
+  working and being decorative.
+- `@Service` / `@Transactional` in the application layer is the compromise most
+  teams accept; purists move them to configuration. Either is defensible — know
+  which you chose.
+
+**Where it fits:** below bounded contexts. Contexts decide the services;
+hexagonal decides the internal structure of *one* service. It's an LLD-level
+choice, and different services in the same system can make it differently.
+
+**"Have you used it" really means "do you know when not to."** A CRUD service
+gains nothing — three files where one would do. It earns its keep when domain
+rules are complex or external systems are volatile. The GDS integration is the
+natural example: `SeatInventory` as a port, one adapter per GDS; a second GDS is
+a second adapter and the domain doesn't change. That is the anticorruption layer
+from the context map, implemented as an adapter — the point worth making, because
+it connects the strategic decision to the code.
+
+### Deep-dive: clean architecture, worked
+
+Relates to [Hexagonal / Clean Architecture](#5-explain-hexagonal-ports--adapters--clean-architecture-have-you-used-them)
+and [Where does `@Service` sit?](#8-where-does-service-sit-in-clean-architecture).
+The [transcript](../notes/ddd-and-clean-architecture.md) has the full skeleton
+with method bodies; the shape:
+
+```
+com.airline.booking
+├── domain/            ← no framework imports, anywhere
+│   ├── model/         Booking (root), Passenger, Segment, Hold, Money, Pnr, ...
+│   ├── event/         DomainEvent, SeatsHeld, BookingConfirmed
+│   └── port/
+│       ├── in/        CreateBookingUseCase, ConfirmBookingUseCase   (driving)
+│       └── out/       BookingRepository, SeatInventory, FareValidator,
+│                      PaymentProcessor, EventPublisher              (driven)
+├── application/       CreateBookingService, ConfirmBookingService   (orchestration only)
+├── adapter/
+│   ├── in/web/        BookingController + request/response DTOs
+│   └── out/
+│       ├── persistence/  BookingJpaEntity (@Entity lives HERE), BookingMapper
+│       ├── gds/          GdsSeatInventoryAdapter, GdsResponseTranslator (the ACL)
+│       ├── payment/      PaymentGatewayAdapter
+│       └── messaging/    KafkaEventPublisher
+└── config/            BeanConfiguration
+```
+
+**The aggregate root** carries every business rule and: no setters for state (the
+only route to `CONFIRMED` is `confirm()`, which checks the rules); no Spring, JPA
+or Jackson (compiles against the JDK, unit-testable with no context); cross-
+aggregate references by ID (`paymentReference` is a `String`, not a `Payment`);
+events raised inside the aggregate and pulled by the caller after commit.
+
+**The driven ports name nothing concrete** — no GDS, SOAP, Postgres, Kafka or
+Stripe. `SeatInventory` is the domain's own word; if a second GDS arrives or the
+airline switches to direct NDC, the interface doesn't change. That's the ACL from
+the context map, as code.
+
+**The use case (application layer) is orchestration only** — it sequences the
+ports and lets the aggregate decide. No passenger-count rule, no "a draft can be
+held" check, no PNR-format validation lives here; all of that is inside
+`Booking`. If a rule appears in the service, it's in the wrong place. `@Service`
+and `@Transactional` sit here, never in `domain/`.
+
+**The persistence adapter uses two models and a mapper.** `Booking` has no
+`@Entity`; `BookingJpaEntity` is package-private and never leaves the persistence
+package. The cost is a mapper; the benefit is that a Hibernate upgrade cannot
+break your business rules and your domain tests need no database.
+
+**The GDS adapter is where the pattern earns its keep.** Everything ugly about
+the GDS — SOAP envelopes, three-letter status codes, its date format, its habit
+of returning success with an embedded error — is contained in that one package;
+`GdsResponseTranslator` is the only place that knows. Second GDS = a new
+`implements SeatInventory` and one config line changed.
+
+**The test is the payoff:** `Booking` rules test with no Spring context, no
+database, no mocks, in milliseconds — because every rule lives in a plain Java
+class. Use-case tests mock the ports, and only the ports.
+
+**Enforce the dependency rule with ArchUnit, not discipline:**
+
+```java
+noClasses().that().resideInAPackage("..domain..")
+    .should().dependOnClassesThat()
+    .resideInAnyPackage("..adapter..", "..application..",
+                        "org.springframework..", "jakarta.persistence..");
+```
+
+**When not to do this:** ~3 extra files per concept plus a mapper to maintain. It
+pays off when business rules are complex or external systems volatile — which
+describes Booking exactly, between a legacy GDS and a payment gateway. A
+reference-data service returning airport codes should be a controller, a
+repository and an entity. Different services in the same system can choose
+differently; nobody outside a service can tell which you picked.
 
 ---
 
