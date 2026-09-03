@@ -220,7 +220,23 @@ logging:
 
 ### 10. Follow 12-Factor principles
 
-Config lives in the environment, strictly separated from code.
+Config lives in the environment, strictly separated from code — one of the twelve
+factors below.
+
+| # | Factor | What it means |
+|---|---|---|
+| 1 | **Codebase** | One codebase in Git, many deploys (dev / QA / prod). |
+| 2 | **Dependencies** | Declare them explicitly (`pom.xml` / `package.json`); never rely on what's installed on the machine. |
+| 3 | **Config** | Keep it in environment variables, not in the jar — the same artifact runs everywhere. |
+| 4 | **Backing services** | DB, queue, cache are attached resources; swap them by changing a URL. |
+| 5 | **Build, release, run** | Three separate stages; no editing code on the server. |
+| 6 | **Processes** | App runs stateless — no in-memory session; push state to DB / Redis. |
+| 7 | **Port binding** | App is self-contained and exposes a port (embedded Tomcat in Spring Boot); no external app server. |
+| 8 | **Concurrency** | Scale by adding more processes / pods, not by making one process bigger. |
+| 9 | **Disposability** | Start fast, shut down gracefully; containers can be killed at any time. |
+| 10 | **Dev/prod parity** | Keep environments as similar as possible (same DB, same versions). |
+| 11 | **Logs** | Write to stdout as an event stream; let the platform collect them. |
+| 12 | **Admin processes** | Run migrations and one-off jobs as separate short-lived processes from the same codebase. |
 
 ---
 
