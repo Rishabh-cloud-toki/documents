@@ -3,7 +3,7 @@
 Technical study notes and interview prep. For the engineering-management track see
 [../management/README.md](../management/README.md). Root index: [../README.md](../README.md).
 
-- **Notes:** 19
+- **Notes:** 20
 - **Status legend:** ✅ full write-up · ✍️ partial / has TODO sections · 📋 checklist / question list · 🌱 stub / reading list only
 - **Planned / not yet written:** [../to-be-added.md](../to-be-added.md)
 
@@ -19,21 +19,22 @@ Go through these top to bottom — each builds loosely on the previous ones.
 | 2 | [System design principles & resilience patterns](architecture/system-design-principles-and-resilience-patterns.md) | Architecture | ✅ |
 | 3 | [CAP theorem](architecture/cap-theorem.md) | Architecture | ✅ |
 | 4 | [How to design a system from scratch](architecture/system-design-approach.md) *(newly written)* | Architecture | ✅ |
-| 5 | [Architecture & design patterns — checklist](architecture/architecture-and-design-patterns-checklist.md) | Architecture | 📋 |
-| 6 | [Architecture & design patterns — Q&A](architecture/architecture-and-design-patterns-qa.md) | Architecture | ✅ |
-| 7 | [Diagramming & design tools](architecture/diagramming-and-design-tools.md) | Architecture | ✅ |
-| 8 | [SOLID principles](architecture/solid-principles.md) | Architecture | ✅ |
-| 9 | [Design patterns — reading list](architecture/design-patterns-reading-list.md) | Architecture | 🌱 |
-| 10 | [Spring Boot & microservices — Q&A](backend-and-messaging/spring-boot-and-microservices-qa.md) | Backend & messaging | ✅ |
-| 11 | [Messaging & event-driven architecture](backend-and-messaging/messaging-and-event-driven-architecture.md) *(newly written)* | Backend & messaging | ✅ |
-| 12 | [Data architecture](data/data-architecture.md) *(newly written)* | Data | ✅ |
-| 13 | [Database & data architecture — questions](data/database-and-data-architecture-questions.md) | Data | 🌱 |
-| 14 | [SLOs, observability & reliability engineering](reliability-and-observability/slos-and-observability.md) *(newly written)* | Reliability | ✅ |
-| 15 | [JWT & OAuth authentication](security/jwt-and-oauth-authentication.md) | Security | ✅ |
-| 16 | [Angular interview notes](frontend/angular-interview-notes.md) | Frontend | ✅ |
-| 17 | [Gen AI basics](gen-ai/gen-ai-basics.md) | Gen AI | ✍️ |
-| 18 | [Gen AI advanced — reading list](gen-ai/gen-ai-advanced-reading-list.md) | Gen AI | 🌱 |
-| 19 | [Agentic reverse-engineering & migration pipeline](gen-ai/agentic-migration-notes.md) *(newly written)* | Gen AI | ✅ |
+| 5 | [System design — worked examples](architecture/system-design-worked-examples.md) *(newly written)* | Architecture | ✅ |
+| 6 | [Architecture & design patterns — checklist](architecture/architecture-and-design-patterns-checklist.md) | Architecture | 📋 |
+| 7 | [Architecture & design patterns — Q&A](architecture/architecture-and-design-patterns-qa.md) | Architecture | ✅ |
+| 8 | [Diagramming & design tools](architecture/diagramming-and-design-tools.md) | Architecture | ✅ |
+| 9 | [SOLID principles](architecture/solid-principles.md) | Architecture | ✅ |
+| 10 | [Design patterns — reading list](architecture/design-patterns-reading-list.md) | Architecture | 🌱 |
+| 11 | [Spring Boot & microservices — Q&A](backend-and-messaging/spring-boot-and-microservices-qa.md) | Backend & messaging | ✅ |
+| 12 | [Messaging & event-driven architecture](backend-and-messaging/messaging-and-event-driven-architecture.md) *(newly written)* | Backend & messaging | ✅ |
+| 13 | [Data architecture](data/data-architecture.md) *(newly written)* | Data | ✅ |
+| 14 | [Database & data architecture — questions](data/database-and-data-architecture-questions.md) | Data | 🌱 |
+| 15 | [SLOs, observability & reliability engineering](reliability-and-observability/slos-and-observability.md) *(newly written)* | Reliability | ✅ |
+| 16 | [JWT & OAuth authentication](security/jwt-and-oauth-authentication.md) | Security | ✅ |
+| 17 | [Angular interview notes](frontend/angular-interview-notes.md) | Frontend | ✅ |
+| 18 | [Gen AI basics](gen-ai/gen-ai-basics.md) | Gen AI | ✍️ |
+| 19 | [Gen AI advanced — reading list](gen-ai/gen-ai-advanced-reading-list.md) | Gen AI | 🌱 |
+| 20 | [Agentic reverse-engineering & migration pipeline](gen-ai/agentic-migration-notes.md) *(newly written)* | Gen AI | ✅ |
 
 ---
 
@@ -43,6 +44,7 @@ Go through these top to bottom — each builds loosely on the previous ones.
 - [interview-prep/interview-question-bank.md](interview-prep/interview-question-bank.md) — 📋 Master checklist of interview questions across Spring Boot & microservices, architecture & design patterns, database & data architecture, cloud & DevOps, non-functional requirements, leadership & communication, and system design. Questions only, no answers.
 
 ### Architecture
+- [architecture/system-design-worked-examples.md](architecture/system-design-worked-examples.md) — ✅ *(newly written)* Five systems designed from scratch with every significant decision justified, and — the point of the note — a master comparison table showing what changes between them and why. **Part 0** is the spine: the eight questions that actually change a design (scarce resource and cost of error, read:write ratio and traffic shape, when money moves relative to service delivery, unit lifetime, own-vs-resell supply, latency budget, what survives a partition, who else must change because of you). Then worked designs for **e-commerce at peak** (classifying every operation by consistency need, the ~2% CP core inside a 98% AP system, hot-SKU contention and the four fixes, trade-offs stated plainly, degradation ladder), **online flight booking** (the full 13-step walkthrough — NFRs, context diagram and integration register, ADRs, the hop table, the idempotency contract, the three-phase flow and where the commit barrier falls, the seat-hold TTL implemented in SQL, the compensation table, Step Functions vs Temporal), and **ride-hailing dispatch** (the deliberate inversion — optimistic timed offers instead of pessimistic holds, geospatial cell indexing, 25k writes/sec ingest and backpressure, surge as stream processing, payment after service, and the case where event sourcing is genuinely correct). Shorter sketches for an **order-matching exchange**, a **video streaming platform** and a **payments switch / ledger**, each chosen to invert one default. **Part 5** is a decision catalogue (claiming strategies, orchestration vs choreography, where the sync/async barrier goes, keeping a read model current, replication, when event sourcing earns its cost, bulkhead vs rate limiter vs circuit breaker vs load shedding, idempotency mechanisms), and **Part 6** is a 20-question self-test.
 - [architecture/system-design-approach.md](architecture/system-design-approach.md) — ✅ *(newly written)* A 13-step walkthrough of designing a system from scratch, each step ending in a worked artifact filled in for a running flight-booking example: understand the problem & NFRs, draw the system boundary (C4 context + integration register), model the domain (event storming, ubiquitous language), decide bounded contexts (context map), make the expensive-to-reverse decisions (ADRs), choose deployment & communication style together (hop table), draw the containers, design the contracts (API spec, event catalogue, error model, idempotency), sequence diagrams with compensation tables, data model per context (ownership & duplication), deployment register, cross-cutting concerns (observability, resilience, security), and phase the delivery (risk register). Ends with how the artifacts map onto an HLD.
 - [architecture/system-design-principles-and-resilience-patterns.md](architecture/system-design-principles-and-resilience-patterns.md) — ✅ The system-design principles list (Scalability, Availability, Reliability, Maintainability, Performance, Security, Fault Tolerance, CAP, Observability, Modularity, API Design, Cost Efficiency) with a memory phrase, plus Circuit Breaker, Bulkhead, distributed error-handling strategies in Spring Boot, and FeignClient notes.
 - [architecture/cap-theorem.md](architecture/cap-theorem.md) — ✅ Precise reference on the CAP theorem: formal definitions of consistency (linearizability), availability, and partition tolerance; the real CP-vs-AP choice during a partition; common misconceptions; the PACELC extension (consistency/latency trade-off outside partitions); the consistency spectrum; a worked example; system classifications; and how to use it in a design discussion. *(Newly written — not from the original notes.)*
@@ -84,6 +86,7 @@ cover topics central to an architect's role but missing or only stubbed:
 | Note | Why it was added |
 |---|---|
 | [architecture/cap-theorem.md](architecture/cap-theorem.md) | The old `CAP Theorem.md` file actually contained JWT/OAuth content; there were no real CAP notes. |
+| [architecture/system-design-worked-examples.md](architecture/system-design-worked-examples.md) | The method note had a single running example (flight booking). This applies the same method across five systems with deliberately opposed constraints, so the *decisions* become visible rather than one design being memorised. |
 | [architecture/system-design-approach.md](architecture/system-design-approach.md) | The old `New System Design Approach.md` was a bare bullet-list skeleton; replaced with a full step-by-step walkthrough ending in worked artifacts. |
 | [backend-and-messaging/messaging-and-event-driven-architecture.md](backend-and-messaging/messaging-and-event-driven-architecture.md) | Kafka and events were referenced everywhere but never explained — delivery semantics, ordering, schema evolution, EDA styles. |
 | [data/data-architecture.md](data/data-architecture.md) | Data was the biggest gap — only an unanswered question list existed. Replication, sharding, isolation levels, caching, CQRS/ES, migrations. |
