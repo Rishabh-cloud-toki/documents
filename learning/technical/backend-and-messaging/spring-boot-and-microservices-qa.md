@@ -21,10 +21,15 @@ Q&A notes for technical architect interviews.
 13. [Synchronous vs. asynchronous communication](#13-compare-synchronous-vs-asynchronous-communication--when-do-you-use-kafka-rabbitmq-rest-or-grpc)
 14. [Rate limiting vs. throttling](#14-whats-the-difference-between-rate-limiting-and-throttling)
 15. [Implementing throttling in Spring Boot](#15-how-do-you-implement-throttling-in-a-spring-boot-application)
+16. [Appendix: Q&A deep-dives](#appendix-qa-deep-dives)
 
 ---
 
 ## 1. How do you design a Spring Boot-based microservice architecture for a large-scale application?
+
+> Deep-dive: [12-Factor vs quality attributes vs design principles](#deep-dive-12-factor-vs-quality-attributes-vs-design-principles)
+> — the three things people conflate, what 12-Factor does and doesn't cover, and
+> where the design-principles list lives.
 
 ### Understand the business requirements first
 
@@ -223,6 +228,10 @@ logging:
 Config lives in the environment, strictly separated from code — one of the twelve
 factors below.
 
+> Deep-dive: [12-Factor vs quality attributes vs design principles](#deep-dive-12-factor-vs-quality-attributes-vs-design-principles)
+> — 12-Factor is deploy practice, not a quality-attribute list; which factors buy
+> which "-ility", and what *Beyond the Twelve-Factor App* adds.
+
 | # | Factor | What it means |
 |---|---|---|
 | 1 | **Codebase** | One codebase in Git, many deploys (dev / QA / prod). |
@@ -374,6 +383,10 @@ Environment variables sit very high in the precedence chain — above both confi
 ---
 
 ## 6. How do you handle distributed transactions in microservices?
+
+> Deep-dive: [two-phase commit and why saga replaced it](#deep-dive-two-phase-commit-and-why-saga-replaced-it)
+> — the two 2PC phases, the blocking failure mode, where XA/JTA still lives, and
+> the saga trade-off.
 
 ### Why it's hard
 
@@ -619,6 +632,13 @@ Rather than polling yourself, Debezium watches the outbox table's transaction lo
 
 ## 9. What's your approach to building resilient microservices?
 
+> Deep-dives: [bulkhead, in depth](#deep-dive-bulkhead-in-depth) — the 200-thread
+> starvation scenario, thread-pool vs semaphore, and bulkheads beyond thread
+> pools; [thundering herd](#deep-dive-thundering-herd) — synchronised retries,
+> cache stampede, reconnect storms, and why you need backoff *and* jitter;
+> [chaos engineering](#deep-dive-chaos-engineering) — the hypothesis loop, game
+> days, and observability as a prerequisite.
+
 A layered strategy combining fault tolerance, latency management, and failure recovery.
 
 ### 1. Circuit breaker
@@ -718,6 +738,11 @@ Inject failures with tools like Gremlin or Chaos Monkey; run game days to simula
 
 ## 10. How do you manage service discovery and communication?
 
+> Deep-dives: [server-side discovery, three ways](#deep-dive-server-side-discovery-three-ways)
+> — Kubernetes kube-proxy vs AWS ALB vs Consul+nginx, and which ones add a real
+> hop; [chassis, sidecar and service mesh](#deep-dive-chassis-sidecar-and-service-mesh)
+> — the three places cross-cutting concerns can live.
+
 ### Why discovery is needed
 
 In a dynamic environment, IPs and ports change constantly through scaling and failures. Discovery lets services locate each other automatically.
@@ -804,6 +829,11 @@ spring:
 ---
 
 ## 11. Can you explain more about client-side discovery?
+
+> Deep-dive: [client-side discovery, mechanically](#deep-dive-client-side-discovery-mechanically)
+> — what `@LoadBalanced` actually does, why the URL never hits DNS, the 30s
+> registry cache (and ~90s staleness), and why ten pods mean ten uncoordinated
+> round-robin counters.
 
 In client-side discovery the calling service is responsible for querying the registry, load-balancing across the returned instances, and making the request.
 
@@ -913,6 +943,11 @@ Smaller systems, latency-sensitive direct calls, distributed independent service
 ---
 
 ## 12. What is a service mesh, and how does it provide discovery, load balancing, etc.?
+
+> Deep-dive: [chassis, sidecar and service mesh](#deep-dive-chassis-sidecar-and-service-mesh)
+> — chassis vs fat client vs sidecar vs infrastructure, why a sidecar over a
+> library, what it actually costs, and when Kubernetes + gateway + Resilience4j
+> is the right resting place instead.
 
 A service mesh is a dedicated infrastructure layer handling service-to-service communication — a transparent layer adding discovery, load balancing, retries, mTLS, observability, and traffic shaping without changing application code.
 
@@ -1073,6 +1108,10 @@ Use when you need reliable delivery with acknowledgment, queueing, retries, and 
 
 ## 14. What's the difference between rate limiting and throttling?
 
+> Deep-dive: [rate limiting vs bulkhead](#deep-dive-rate-limiting-vs-bulkhead)
+> — concurrency vs frequency, and the per-instance trap that makes five pods at
+> 100/s send 500/s to a partner.
+
 The terms are often used interchangeably, but they differ in behavior.
 
 | Aspect | Rate limiting | Throttling |
@@ -1200,6 +1239,357 @@ Configure limits at the mesh level (Istio/Envoy) for centralized, policy-driven 
 | Resilience4j `RateLimiter` | Per method | No — per JVM | Protecting a specific downstream call |
 | Spring Cloud Gateway | Per route | Yes, via Redis | Edge enforcement for all traffic |
 | Service mesh | Cluster-wide | Yes | Uniform policy across polyglot services |
+
+---
+
+## Appendix: Q&A deep-dives
+
+Deeper passes from working through these notes — resilience, discovery and
+distributed-transaction topics past the interview-answer level. Full transcript:
+[microservices.md](../notes/microservices.md). Each block links back to the
+question it belongs to.
+
+- [12-Factor vs quality attributes vs design principles](#deep-dive-12-factor-vs-quality-attributes-vs-design-principles) — Q1, Q3
+- [Two-phase commit and why saga replaced it](#deep-dive-two-phase-commit-and-why-saga-replaced-it) — Q6
+- [Bulkhead, in depth](#deep-dive-bulkhead-in-depth) — Q9
+- [Thundering herd](#deep-dive-thundering-herd) — Q9
+- [Chaos engineering](#deep-dive-chaos-engineering) — Q9
+- [Rate limiting vs bulkhead](#deep-dive-rate-limiting-vs-bulkhead) — Q14, Q15
+- [Client-side discovery, mechanically](#deep-dive-client-side-discovery-mechanically) — Q11
+- [Server-side discovery, three ways](#deep-dive-server-side-discovery-three-ways) — Q10
+- [Chassis, sidecar and service mesh](#deep-dive-chassis-sidecar-and-service-mesh) — Q12, Q10
+
+### Deep-dive: 12-Factor vs quality attributes vs design principles
+
+Relates to [designing a large-scale architecture](#1-how-do-you-design-a-spring-boot-based-microservice-architecture-for-a-large-scale-application)
+and [the 12-Factor item under configuration](#3-what-are-best-practices-for-managing-configurations-across-environments-in-spring-boot).
+
+Three things people conflate:
+
+| | What it is | Examples |
+|---|---|---|
+| **Quality attributes** (NFRs, "the -ilities") | what you want the system to *be* | scalable, reliable, secure |
+| **Design principles** | *how* you build it that way | loose coupling, statelessness, redundancy |
+| **12-Factor** | a specific opinionated checklist for cloud / container deployment (Adam Wiggins, Heroku, ~2011, 12factor.net) | config in env vars, stateless processes, logs to stdout |
+
+Your quality-attribute list is the *outcome*; the 12 factors are *practices* that
+help you get there. Scalability and resilience come largely from factors 6
+(stateless processes), 8 (concurrency) and 9 (disposability); observability is
+partly factor 11 (logs to stdout). Security, availability and fault tolerance
+aren't covered at all — which is why Kevin Hoffman's *Beyond the Twelve-Factor
+App* adds API-first, telemetry, and authentication / authorization.
+
+The design-principles-per-quality-attribute breakdown (S‑A‑R‑M‑P‑S‑F‑C‑O‑M‑A‑C)
+lives in [system-design-principles-and-resilience-patterns.md](../architecture/system-design-principles-and-resilience-patterns.md);
+the 12-factor list itself is the table in [Q3 item 10](#3-what-are-best-practices-for-managing-configurations-across-environments-in-spring-boot) above.
+
+### Deep-dive: two-phase commit and why saga replaced it
+
+Relates to [handling distributed transactions](#6-how-do-you-handle-distributed-transactions-in-microservices)
+— item 4 there says "avoid 2PC"; this is why.
+
+**2PC** makes a transaction span multiple databases / services so that either
+everyone commits or everyone rolls back. One **coordinator**, several
+**participants**:
+
+- **Phase 1 — prepare (voting).** The coordinator asks "can you commit?" Each
+  participant does the work locally, writes it to its log, takes locks, but does
+  *not* commit; replies yes / no. A "yes" is a durable promise it can still
+  commit after a crash.
+- **Phase 2 — commit or abort.** All yes → everyone commits and releases locks.
+  Any no → everyone aborts.
+
+**Why it's avoided:** if the coordinator dies after phase 1, participants sit
+**blocked** holding locks with no way to decide; locks held across the network
+crush throughput; in CAP terms it picks consistency, so one slow participant
+stalls everyone; and it doesn't fit microservices, which own their own DBs and
+talk over non-transactional HTTP.
+
+**Where it still appears:** classic distributed databases, and Java XA / JTA (one
+transaction across Oracle + JMS, coordinated by an app server or Atomikos /
+Narayana).
+
+**What replaced it — the saga:** a sequence of local transactions, each
+committing immediately; if step 3 fails, run *compensating* transactions to undo
+2 and 1. You give up atomicity and accept brief inconsistency, but hold no locks
+and no single failure blocks everyone. **3PC** adds a pre-commit phase to reduce
+blocking but is rarely used — slower and still fails under partitions.
+
+> 2PC = "everyone raises their hand before anyone acts." Saga = "everyone acts,
+> and apologizes if something goes wrong later."
+
+### Deep-dive: bulkhead, in depth
+
+Relates to [building resilient microservices](#9-whats-your-approach-to-building-resilient-microservices)
+— item 4.
+
+**The problem.** One thread pool of 200 serves your DB, a payment API and a slow
+partner API. The partner API starts taking 30s; requests pile up holding threads;
+within a minute all 200 are stuck on that one dead API — and now nobody can reach
+the database either.
+
+**The fix.** Give each dependency its own small pool (`remoteApi` → 10,
+`paymentApi` → 20, `database` → 50). When the partner hangs, only those 10 threads
+stick; calls to it fail fast, payments and DB calls keep working. The 11th
+concurrent call to `remoteApi` is rejected immediately rather than queuing
+forever.
+
+```yaml
+resilience4j.thread-pool-bulkhead.instances.remoteApi:
+  max-thread-pool-size: 10
+  core-thread-pool-size: 5
+```
+
+**Two flavours in Resilience4j:** *thread-pool bulkhead* (a real separate pool,
+calls run on those threads) and *semaphore bulkhead* (just a counter, no extra
+threads — lighter; use with reactive or virtual threads).
+
+**Beyond thread pools** the pattern is "partition any shared finite resource so
+one consumer can't drain it all": connection pools (reporting 10 / checkout 30 /
+jobs 10), Kubernetes node pools and pod CPU/memory limits, separate deployments
+per client or criticality (premium vs free, a dedicated checkout instance; at
+scale cell-based architecture and shuffle sharding), a queue + consumer group per
+message type or tenant, separate DB schemas / instances, separate Redis instances
+or logical DBs, one circuit-breaker instance per dependency.
+
+**The trade-off:** bulkheads waste capacity — idle checkout connections sit
+unused while reporting queues. One shared pool is more efficient right up until it
+fails completely. You pay in utilization for contained failure. Partition along
+the lines where blast radius matters (dependency, tenant, criticality); finer than
+that and each pool is too small for a normal burst.
+
+### Deep-dive: thundering herd
+
+Relates to [building resilient microservices](#9-whats-your-approach-to-building-resilient-microservices)
+— the retries-with-backoff item names the effect; this is the full picture.
+
+Many clients doing the same thing at the same instant, overwhelming whatever they
+hit. Four shapes:
+
+1. **Synchronised retries.** A service goes down; 1000 clients all retry at
+   exactly 1s, knock it over again, retry again — the herd locks it into
+   permanent failure. Fix: **jitter** — retry at a random point in the window.
+   Exponential backoff spreads retries over *time*; jitter spreads them across
+   *clients*; you need both.
+2. **Cache stampede.** A hot key expires; 5000 requests find the cache empty and
+   all run the same expensive query. Fixes: single-flight locking (first
+   recomputes, the rest wait and reuse), randomised TTL (300 ± 30s),
+   refresh-ahead (refresh in the background before expiry).
+3. **Restart / reconnect storms.** Every client reconnects at once; 200 pods
+   start after a deploy and all open DB connections the same second. Fixes:
+   staggered rollouts, connection limits, randomised startup delay, readiness
+   probes so pods join the pool gradually.
+4. **Scheduled jobs.** Every cron at midnight, every mobile app syncing at 00:00.
+   Add a random per-client offset.
+
+**Underneath:** anything making many clients act at the same *moment* creates a
+herd — randomise, and the same total work spreads into a manageable stream.
+General defences: jitter on every retry and timer; a request cap so you fail some
+rather than all; load shedding at the edge; circuit breakers so clients stop
+retrying a dead service.
+
+### Deep-dive: chaos engineering
+
+Relates to [building resilient microservices](#9-whats-your-approach-to-building-resilient-microservices)
+— item 8.
+
+Deliberately break things in a controlled way so you learn how the system fails
+*before* it fails on its own at 3am. You built retries, breakers, bulkheads,
+redundancy — but you've never seen them fire, and a real outage is where you
+discover the standby DB was never replicating or that retries created a herd.
+Chaos engineering treats resilience as something you *test*, not *assume*.
+
+**The loop:** state a hypothesis ("one payment pod dies → error rate stays under
+0.1%") → inject the failure → watch the dashboards → fix what you learned. Keep
+the blast radius small first (one pod, one AZ, off-peak) and always have a stop
+button.
+
+**Failures you inject:** kill instances / pods; add network latency; drop packets
+or partition services; max CPU or fill disk; make a dependency error or hang;
+take out a whole AZ.
+
+**Tools:** Chaos Monkey (Netflix's original, kills instances in prod), Gremlin
+(commercial, safety controls), Chaos Mesh / LitmusChaos (Kubernetes-native,
+experiments as CRDs), AWS Fault Injection Simulator, Resilience4j / Toxiproxy
+(lighter, local / test).
+
+**Game days** — a scheduled team outage simulation, like a fire drill. What you
+learn is rarely technical: the runbook is stale, nobody knows who approves a DB
+failover, the on-call alert goes to someone who left.
+
+**Prerequisites:** good observability first (break something you can't observe
+and you've caused an outage, not run an experiment), a known-good baseline, team
+buy-in. Most teams start in staging, then production in business hours with the
+team watching and the smallest scope — production is where the value is, but you
+earn your way there.
+
+### Deep-dive: rate limiting vs bulkhead
+
+Relates to [rate limiting vs throttling](#14-whats-the-difference-between-rate-limiting-and-throttling)
+and [implementing throttling](#15-how-do-you-implement-throttling-in-a-spring-boot-application).
+
+**Bulkhead limits concurrency** (how many calls run *at the same time*); **rate
+limiting limits frequency** (how many happen *per unit of time*).
+
+```yaml
+resilience4j.ratelimiter.instances.default:
+  limit-for-period: 100
+  limit-refresh-period: 1s
+```
+
+100 calls / second; call 101 is rejected or waits; the counter resets each
+second. Reasons to want it: protect yourself from a spike or a buggy client;
+protect the thing you call (stay inside a partner's quota); fairness (free tier
+10/s, paid 1000/s).
+
+> Bulkhead = the restaurant has 10 tables, so at most 10 groups eat at once.
+> Rate limit = the kitchen accepts at most 100 orders per hour.
+
+**The trap:** Resilience4j's rate limiter is **per instance**. Five pods at 100/s
+each = 500/s to the partner. For a hard external quota you need a distributed
+(Redis-backed) limiter, or divide the budget across pods and accept the waste.
+(The same per-instance caveat applies to the client-side load balancer — see
+[client-side discovery](#deep-dive-client-side-discovery-mechanically).)
+
+### Deep-dive: client-side discovery, mechanically
+
+Relates to [client-side discovery in depth](#11-can-you-explain-more-about-client-side-discovery).
+
+The caller queries the registry, load-balances across the returned instances, and
+makes the request itself. Registration and consumption are both just YAML —
+adding `spring-cloud-starter-netflix-eureka-client` auto-configures both roles
+(`register-with-eureka` / `fetch-registry`, both default true). On startup the app
+POSTs its name / host / port / instance-id to Eureka, then heartbeats every 30s;
+miss the heartbeats and Eureka evicts it. No `@EnableEurekaClient` — it hasn't
+been needed for years.
+
+**On a call** to `restTemplate.getForObject("http://user-service/users/123", …)`:
+
+1. `@LoadBalanced` registered an interceptor that grabs the request before the
+   network — **this URL is never resolved by DNS**.
+2. It reads `user-service` as a **service ID**, not a hostname.
+3. It asks Spring Cloud LoadBalancer → `DiscoveryClient` → its **local in-memory
+   cache** of the registry.
+4. Gets `10.0.1.5:8081`, `10.0.1.6:8081`, `10.0.1.7:8081` and picks one (round
+   robin by default).
+5. Rewrites the URL to `http://10.0.1.6:8081/users/123` and lets the real call
+   proceed — **directly** to that pod. Nothing passes through Eureka.
+
+**No registry call per request:** the client downloads the full registry on
+startup and refreshes every 30s in the background; your call reads a local list.
+Fast (no extra hop), resilient (if Eureka is down, services keep calling from
+cached lists — Eureka is deliberately AP, stale data beats no data), but stale (a
+dead instance can be called for up to ~90s before eviction + refresh — hence you
+still need retries and circuit breakers: **discovery does not remove the need for
+resilience**).
+
+**The load balancer is a library, not a server** — a few classes in your JVM, no
+network hop; "asking the load balancer" is a method call. Round robin is a counter
+incremented per call. Consequence: every instance of the caller load-balances
+independently with its own counter and cache — ten pods = ten uncoordinated
+round-robin counters, no global view, no coordinator.
+
+**Feign** is the same machinery with the plumbing moved out of your code: at
+startup Spring generates a dynamic proxy per `@FeignClient` interface; calling a
+method builds the request from annotations, does the same LoadBalancer → cache →
+pick lookup, sends the call, deserializes the response. `@FeignClient` implies
+`@LoadBalanced`. Feign is blocking (for reactive use `WebClient` with
+`@LoadBalanced`); `spring-cloud-openfeign` is in maintenance mode — the modern
+equivalent is Spring 6's HTTP interface (`@HttpExchange` with `RestClient`).
+
+### Deep-dive: server-side discovery, three ways
+
+Relates to [service discovery and communication](#10-how-do-you-manage-service-discovery-and-communication).
+
+The caller knows nothing about instances — it calls one stable address, something
+else does the lookup and forwarding. The dividing line from client-side isn't "is
+there a proxy", it's **who chooses the instance**: your JVM from a list your code
+holds (client-side), or something outside your process (server-side).
+
+**Kubernetes.** `http://user-service/users/123` *is* a real address —
+`user-service` resolves through CoreDNS to the Service's **ClusterIP**
+(`10.96.0.42`), which is virtual: no pod or NIC has it, it exists only as a rule.
+Your client opens a normal TCP connection to it; on every node, **kube-proxy** has
+installed iptables / IPVS rules that rewrite the destination (NAT) to one of the
+pod IPs, and the packet travels there directly — **no proxy server in the
+middle**. The pod list comes from an **EndpointSlice** the control plane keeps
+updated as pods pass / fail readiness; kube-proxy updates every node's rules
+within a second or two. Nothing registers itself; the Service's label selector is
+the "registration".
+
+**AWS ALB** — here the router really is a separate box. The Auto Scaling Group
+registers instances with a **target group** on launch; the ALB health-checks
+`GET /actuator/health` every 30s; a Route 53 record points at the ALB. Your TCP
+connection **terminates at the ALB**, which opens a *separate* connection to the
+chosen instance — two connections, not one rewritten packet. That's why it can
+terminate / re-encrypt TLS, route on path or header, do sticky sessions, weighted
+canary (95 / 5), retry against a different target — and why it costs an extra
+~1ms hop plus the ALB's own availability and price.
+
+**Consul + nginx (on-prem)** — instances register with Consul on startup; Consul
+health-checks them; `consul-template` watches Consul and regenerates nginx's
+upstream block when the healthy set changes, then reloads nginx. Here the three
+roles are visibly separate; ALB bundles all three, Kubernetes bundles them into
+the control plane + kube-proxy.
+
+| Role | ALB | Consul + nginx | Kubernetes |
+|---|---|---|---|
+| Registry | target group | Consul | EndpointSlice |
+| Health check | ALB probes | Consul checks | readiness probe |
+| Router | the ALB | nginx | kube-proxy rules (in every node's kernel) |
+
+**The hop:** ALB, nginx and a mesh sidecar all add a real extra hop (the
+sidecar's is localhost); Kubernetes and client-side don't — kube-proxy rewrites
+in place. Kubernetes sits in an unusually good spot: the instance decision is out
+of your code, but the data path stays direct. This is why adding Eureka on
+Kubernetes is usually redundant — you'd be building in Java what the platform
+already does below you. **Server-side has largely won** because k8s gives it to
+you free; client-side still makes sense off-platform, or when you want
+per-request control the router can't give.
+
+### Deep-dive: chassis, sidecar and service mesh
+
+Relates to [service mesh](#12-what-is-a-service-mesh-and-how-does-it-provide-discovery-load-balancing-etc)
+and [service discovery](#10-how-do-you-manage-service-discovery-and-communication).
+
+**Where can cross-cutting concerns (discovery, LB, retries, timeouts, breakers,
+mTLS, tracing) live?** Three places:
+
+- **In the process** — a **microservice chassis** (the builder's view: Spring
+  Boot + Spring Cloud, Go kit, Micronaut, Quarkus) or a **fat / smart client**
+  (the networking view: the caller holds the discovery + LB logic). Also called
+  in-process / embedded / proxyless; the Netflix OSS model is the historical
+  shorthand.
+- **Beside the process** — a **sidecar** (the general pattern: a helper process
+  sharing your app's lifecycle — log shippers, config reloaders, secret fetchers,
+  not just networking). A **service mesh** is sidecars used specifically for
+  service-to-service networking, plus a **control plane** coordinating them.
+- **In the infrastructure** — a gateway, Kubernetes Service, or cloud LB
+  (server-side discovery). *A lot of teams sit here and never need the other two.*
+
+**Service mesh, concretely:** everything currently in your app as libraries moves
+**out** into a proxy per instance (usually Envoy — the **data plane**); a
+**control plane** (istiod) pushes config and certs. Your app makes a plain HTTP
+call; the proxy intercepts, discovers, picks an instance, applies the retry
+policy, encrypts (mTLS), records metrics, forwards. **Why a sidecar over a
+library:** language-agnostic — Java, Python and Go services all get the same
+policy without each team implementing it, and policy changes are YAML, not a
+dependency bump in forty repos.
+
+**What it costs:** an extra proxy container per pod, a millisecond or two per hop,
+and a genuinely hard new thing to operate (when something breaks, is it the app,
+the sidecar, or the control plane?). Most teams underestimate this.
+
+**Implementations:** Istio (most capable, most complex; ambient mode drops the
+per-pod sidecar), Linkerd (deliberately simpler, Rust proxy — often the right
+first mesh), Consul Connect (works outside k8s), Cilium (eBPF, mesh functions in
+the kernel), AWS App Mesh.
+
+**Deciding:** a handful of services in one language → libraries. Many services,
+multiple languages, or "we need mTLS everywhere" → a mesh starts paying for
+itself. In between → Kubernetes + gateway + Resilience4j is a common, sensible
+resting place. Don't adopt a mesh because it's the modern answer — adopt it when
+you can name the problem it solves.
 
 ---
 
