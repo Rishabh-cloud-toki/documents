@@ -3,7 +3,7 @@
 Technical study notes and interview prep. For the engineering-management track see
 [../management/README.md](../management/README.md). Root index: [../README.md](../README.md).
 
-- **Notes:** 18
+- **Notes:** 19
 - **Status legend:** ✅ full write-up · ✍️ partial / has TODO sections · 📋 checklist / question list · 🌱 stub / reading list only
 - **Planned / not yet written:** [../to-be-added.md](../to-be-added.md)
 
@@ -33,6 +33,7 @@ Go through these top to bottom — each builds loosely on the previous ones.
 | 16 | [Angular interview notes](frontend/angular-interview-notes.md) | Frontend | ✅ |
 | 17 | [Gen AI basics](gen-ai/gen-ai-basics.md) | Gen AI | ✍️ |
 | 18 | [Gen AI advanced — reading list](gen-ai/gen-ai-advanced-reading-list.md) | Gen AI | 🌱 |
+| 19 | [Agentic reverse-engineering & migration pipeline](gen-ai/agentic-migration-notes.md) *(newly written)* | Gen AI | ✅ |
 
 ---
 
@@ -71,6 +72,7 @@ Go through these top to bottom — each builds loosely on the previous ones.
 ### Gen AI
 - [gen-ai/gen-ai-basics.md](gen-ai/gen-ai-basics.md) — ✍️ Study notes: transformer architecture & query processing, latent diffusion models, vectors vs tensors, transformers vs LLMs, AI vs ML vs deep learning vs Gen AI, grounding vs fine-tuning, and a RAG-pipeline section still marked TODO.
 - [gen-ai/gen-ai-advanced-reading-list.md](gen-ai/gen-ai-advanced-reading-list.md) — 🌱 Stub — topics to read (Agentic AI, MCP, A2A protocol, Crew AI, agent-to-agent communication, Tools vs API, MESOP, JADE).
+- [gen-ai/agentic-migration-notes.md](gen-ai/agentic-migration-notes.md) — ✅ *(newly written)* Design notes and interview prep for an agentic legacy-to-modern **migration platform**: a staged, bottom-up pipeline of specialised agents that reverse-engineers a legacy codebase into layered documentation (entry points → flows → business processes → API specs → data model → consolidated requirements), with a human review gate at each stage. Covers the architecture and orchestrator (DAG, fan-out / fan-in), the six design principles (artifacts as the interface, divide to fit context, escalate rather than guess, review earliest), grounding via deterministic static analysis (AST parsing, call graph, annotation scanning, DI wiring) feeding LLM narration, and coverage / reproducibility / cost / evaluation / known gaps, plus ~30 likely interview questions across system design, LLM-and-agent specifics, engineering management, and client-facing (FDE) angles. **Appendix A** — building the static-analysis layer in Java (JavaParser + symbol solver). **Appendix B** — evaluating the pipeline (mutation testing, the extraction layer as answer key, typed error taxonomy, calibration). **Appendix C** — target-state pipeline (business-rule extractor, horizontal passes, the forward code-generation path).
 
 ---
 
@@ -86,6 +88,7 @@ cover topics central to an architect's role but missing or only stubbed:
 | [backend-and-messaging/messaging-and-event-driven-architecture.md](backend-and-messaging/messaging-and-event-driven-architecture.md) | Kafka and events were referenced everywhere but never explained — delivery semantics, ordering, schema evolution, EDA styles. |
 | [data/data-architecture.md](data/data-architecture.md) | Data was the biggest gap — only an unanswered question list existed. Replication, sharding, isolation levels, caching, CQRS/ES, migrations. |
 | [reliability-and-observability/slos-and-observability.md](reliability-and-observability/slos-and-observability.md) | Resilience patterns were covered but not the operational side — SLOs, error budgets, the three telemetry signals, incident response. |
+| [gen-ai/agentic-migration-notes.md](gen-ai/agentic-migration-notes.md) | Agentic AI was only a bullet on the gen-ai reading list; this is a full worked example — an agent pipeline that reverse-engineers a legacy codebase for migration — with the architecture, grounding layer, evaluation strategy, and interview Q&A. |
 
 All other notes are the original files, moved and renamed only.
 

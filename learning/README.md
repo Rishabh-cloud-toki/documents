@@ -7,7 +7,7 @@ Personal study notes and interview prep, split into two tracks:
 | 🛠️ **Technical** | [technical/README.md](technical/README.md) | Architecture & system design, backend & messaging, data, reliability & observability, security, frontend, Gen AI, and the technical interview question bank. |
 | 👥 **Management** | [management/README.md](management/README.md) | Engineering-management interview prep — people & delivery management, stakeholder management, and role-specific preparation. |
 
-- **Total notes:** 20 (18 technical, 2 management)
+- **Total notes:** 22 (19 technical, 3 management)
 - **Planned / not yet written:** [to-be-added.md](to-be-added.md) — backlog of architect-level gaps still to cover.
 - **Status legend:** ✅ full write-up · ✍️ partial / has TODO sections · 📋 checklist / question list · 🌱 stub / reading list only
 
@@ -34,7 +34,7 @@ management/
 
 This is a reorganised version of notes that previously lived in `converted_notes/`
 and `engineering_manager/`. **No original note content was edited** — files were
-moved, grouped into topic folders, and renamed for clarity. Five notes were newly
+moved, grouped into topic folders, and renamed for clarity. Six notes were newly
 written to fill architect-level gaps (see [technical/README.md](technical/README.md#newly-written-notes)).
 The original `.pages` sources in `mac_notes/` and earlier drafts in
 `converted_notes/old/` were left untouched.
