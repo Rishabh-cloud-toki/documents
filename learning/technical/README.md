@@ -3,7 +3,7 @@
 Technical study notes and interview prep. For the engineering-management track see
 [../management/README.md](../management/README.md). Root index: [../README.md](../README.md).
 
-- **Notes:** 24
+- **Notes:** 25
 - **Status legend:** ✅ full write-up · ✍️ partial / has TODO sections · 📋 checklist / question list · 🌱 stub / reading list only
 - **Planned / not yet written:** [../to-be-added.md](../to-be-added.md)
 
@@ -139,7 +139,7 @@ messaging observability, anti-patterns, and an architect checklist.
 </details>
 
 <details>
-<summary><b>🗄️ Data</b> — 2 notes</summary>
+<summary><b>🗄️ Data</b> — 3 notes</summary>
 
 <br>
 
@@ -147,6 +147,7 @@ messaging observability, anti-patterns, and an architect checklist.
 |---|---|---|
 | [Data architecture](data/data-architecture.md) | ✅ | How to store, model, replicate, partition, evolve and cache data — datastore selection, indexing, isolation levels, sharding, caching, CQRS/ES, CDC, migrations. See detail below. |
 | [Database & data architecture — questions](data/database-and-data-architecture-questions.md) | 🌱 | Open questions: SQL vs NoSQL, multi-tenant data modeling, eventual consistency, DB migrations in CI/CD, Redis caching strategy. |
+| [Data architecture — Q&A notes](notes/data-architecture-notes-1.md) | ✅ | The conversational companion to the above: OLTP/OLAP/streaming in plain language, row vs columnar storage and Parquet internals, the datastore-choice framework worked end to end, access-patterns-first modeling, consistency per operation and making stale reads safe, write-heavy patterns and LSM trees, partitioning vs sharding from first principles, partition keys and unique constraints, DynamoDB's partition-as-data-model, a sharding deep dive, and replicas vs shards with CQRS on top. |
 
 <details>
 <summary>Detailed contents — <i>Data architecture</i></summary>

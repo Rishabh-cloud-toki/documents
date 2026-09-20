@@ -2,8 +2,9 @@
 
 Architect-level reference on how to store, model, replicate, partition, evolve,
 and cache data in a distributed system. Companion to the unanswered question list
-in [database-and-data-architecture-questions.md](database-and-data-architecture-questions.md)
-and to [../architecture/cap-theorem.md](../architecture/cap-theorem.md).
+in [database-and-data-architecture-questions.md](database-and-data-architecture-questions.md),
+to [../architecture/cap-theorem.md](../architecture/cap-theorem.md), and to the
+deep-dive Q&A in [data-architecture-notes-1.md](../notes/data-architecture-notes-1.md).
 
 ## Contents
 
@@ -25,10 +26,15 @@ and to [../architecture/cap-theorem.md](../architecture/cap-theorem.md).
 - [Polyglot persistence and data mesh](#polyglot-persistence-and-data-mesh)
 - [Backup, retention, and data governance](#backup-retention-and-data-governance)
 - [Architect checklist](#architect-checklist)
+- [Appendix: Q&A deep-dives](#appendix-qa-deep-dives)
 
 ---
 
 ## OLTP vs OLAP vs streaming
+
+> Deep-dive: [OLTP, OLAP and streaming, and why storage layout follows from purpose](#deep-dive-oltp-olap-and-streaming-and-why-storage-layout-follows-from-purpose)
+> — the cash-register / monthly-notebook framing, why row vs columnar is a
+> one-dimensional-disk problem, and Parquet's row-group internals.
 
 | | OLTP | OLAP | Streaming / real-time analytics |
 |---|---|---|---|
@@ -46,6 +52,10 @@ operational store stays lean and predictable.
 ---
 
 ## Choosing a datastore — a decision framework
+
+> Deep-dive: [choosing a datastore, worked](#deep-dive-choosing-a-datastore-worked)
+> — why the question order works (correctness, then scale, then you), a retailer
+> example carried through all seven questions, and the DynamoDB-vs-Postgres tell.
 
 Ask these in order. The answers usually eliminate all but one or two options.
 
@@ -78,6 +88,10 @@ stores only when a measured access pattern demands it.
 
 ## The datastore families
 
+> Deep-dive: [DynamoDB, partitioning as the data model](#deep-dive-dynamodb-partitioning-as-the-data-model)
+> — item/attribute vocabulary, single-table design, hot-partition limits, and
+> why DynamoDB trades query flexibility for guaranteed latency at any scale.
+
 | Family | Model | Strengths | Weak at | Examples |
 |---|---|---|---|---|
 | **Relational** | Tables, rows, SQL, joins, ACID | Flexible queries, strong consistency, mature tooling | Horizontal write scaling, schema churn at scale | PostgreSQL, MySQL, SQL Server |
@@ -97,6 +111,11 @@ eventually- and strongly-consistent reads).
 ---
 
 ## Data modeling
+
+> Deep-dive: [access patterns first, not entities](#deep-dive-access-patterns-first-not-entities)
+> — what a written-down access pattern actually decides (key, sort order,
+> denormalisation), and why entity-first modeling answers every query adequately
+> and none of them well.
 
 ### Relational: normalise, then denormalise deliberately
 
@@ -132,6 +151,11 @@ There is no "correct" schema independent of queries. Process:
 
 ## Indexing and query performance
 
+> Deep-dive: [write-heavy patterns and why LSM trees exist](#deep-dive-write-heavy-patterns-and-why-lsm-trees-exist)
+> — the seven-step ladder for write-heavy systems, and the LSM internals
+> (memtable, SSTable, compaction, bloom filters, the three amplifications)
+> behind the B-tree vs LSM row below.
+
 - **B-tree index** (default in relational DBs): `O(log n)` lookups, supports
   range scans and ordering, kept sorted on write. Cost: every write updates every
   index on the table.
@@ -165,6 +189,11 @@ There is no "correct" schema independent of queries. Process:
 ---
 
 ## Transactions and isolation
+
+> Deep-dive: [consistency per operation, and making stale reads safe](#deep-dive-consistency-per-operation-and-making-stale-reads-safe)
+> — why the same application routes inventory, a product page, and a
+> recommendation feed down three different consistency paths, and how to fix a
+> stale read at the write, not the read.
 
 **ACID**: Atomicity (all-or-nothing), Consistency (invariants preserved),
 Isolation (concurrent transactions don't corrupt each other), Durability
@@ -204,6 +233,10 @@ Isolation (concurrent transactions don't corrupt each other), Durability
 
 ## Replication
 
+> Deep-dive: [replicas vs shards, and CQRS on top](#deep-dive-replicas-vs-shards-and-cqrs-on-top)
+> — "replicas copy writes, shards divide writes," why adding a replica never
+> raises the write ceiling, and how the two combine with a CDC-fed projection.
+
 Copying data to multiple nodes for availability, read scaling, and locality.
 
 ### Topologies
@@ -240,6 +273,14 @@ controller and fencing.
 ---
 
 ## Partitioning and sharding
+
+> Deep-dives: [partitioning vs sharding, and the partition-key/unique-constraint
+> trap](#deep-dive-partitioning-vs-sharding-and-the-partition-keyunique-constraint-trap)
+> — the toy-box version, Postgres range partitioning and pruning, and why a
+> partition key in the unique key is a routing guarantee, not a global check;
+> [sharding, what it actually costs, and picking a shard key](#deep-dive-sharding-what-it-actually-costs-and-picking-a-shard-key)
+> — what genuinely forces sharding, consistent hashing, everything you give up,
+> and the ladder to exhaust first.
 
 Splitting one dataset across nodes so writes and storage scale horizontally.
 (Partitioning = within a store; sharding = across stores/nodes; often used
@@ -279,6 +320,10 @@ interchangeably.)
 ---
 
 ## Distributed transactions across stores
+
+> The [sharding deep-dive](#deep-dive-sharding-what-it-actually-costs-and-picking-a-shard-key)
+> covers why cross-shard transactions disappear once you shard, and why sagas
+> are usually the replacement, not 2PC.
 
 Preferred order of approaches (see also the Microservices note's saga/outbox
 sections):
@@ -353,6 +398,10 @@ hot data is often mis-sized or mis-keyed.
 ---
 
 ## CQRS and Event Sourcing
+
+> The [replicas-vs-shards deep-dive](#deep-dive-replicas-vs-shards-and-cqrs-on-top)
+> covers when CQRS is justified on top of a sharded write side, and how the
+> read projection is actually built (CDC, not dual writes).
 
 ### CQRS (Command Query Responsibility Segregation)
 
@@ -519,3 +568,454 @@ the OLTP database on a schedule.
 - [ ] Backups have a defined RPO/RTO and a *tested* restore runbook; PITR enabled
 - [ ] PII located, classified, encrypted, and covered by a retention/erasure policy
 - [ ] Event/API schemas governed by a registry with a compatibility mode
+
+---
+
+## Appendix: Q&A deep-dives
+
+Plain-language walk-throughs from working through this note — the questions that
+needed more than the reference above. Full transcript:
+[data-architecture-notes-1.md](../notes/data-architecture-notes-1.md).
+Each block links back to the section it belongs to.
+
+- [OLTP, OLAP and streaming, and why storage layout follows from purpose](#deep-dive-oltp-olap-and-streaming-and-why-storage-layout-follows-from-purpose) — OLTP vs OLAP vs streaming
+- [Choosing a datastore, worked](#deep-dive-choosing-a-datastore-worked) — the decision framework
+- [Access patterns first, not entities](#deep-dive-access-patterns-first-not-entities) — data modeling
+- [Consistency per operation, and making stale reads safe](#deep-dive-consistency-per-operation-and-making-stale-reads-safe) — transactions and isolation
+- [Write-heavy patterns and why LSM trees exist](#deep-dive-write-heavy-patterns-and-why-lsm-trees-exist) — indexing and query performance
+- [Partitioning vs sharding, and the partition-key/unique-constraint trap](#deep-dive-partitioning-vs-sharding-and-the-partition-keyunique-constraint-trap) — partitioning and sharding
+- [DynamoDB, partitioning as the data model](#deep-dive-dynamodb-partitioning-as-the-data-model) — the datastore families
+- [Sharding, what it actually costs, and picking a shard key](#deep-dive-sharding-what-it-actually-costs-and-picking-a-shard-key) — partitioning and sharding; distributed transactions
+- [Replicas vs shards, and CQRS on top](#deep-dive-replicas-vs-shards-and-cqrs-on-top) — replication; CQRS and event sourcing
+
+### Deep-dive: OLTP, OLAP and streaming, and why storage layout follows from purpose
+
+Relates to [OLTP vs OLAP vs streaming](#oltp-vs-olap-vs-streaming) and
+[the datastore families](#the-datastore-families).
+
+**The plain version:** OLTP is the cash register — one small thing, right now,
+very fast, many registers at once. OLAP is the notebook you read at month end —
+reads everything, takes a minute, tells you something you didn't know.
+Streaming is the friend at the door counting people — remembers only the last
+few minutes, but tells you *now*. One sentence: **OLTP runs the business, OLAP
+explains the business, streaming reacts to the business.** Only the *purpose*
+row of the comparison table is a real choice — access pattern, latency, volume,
+schema and store all fall out of it.
+
+**Row vs columnar is a one-dimensional-disk problem.** A disk is one long line
+of bytes; a table is two-dimensional, so something has to pick an order to
+flatten it — along the rows, or down the columns. That's the entire difference.
+Three wins follow from going columnar: you stop reading columns the query
+didn't ask for (2 of 80 columns read instead of all 80), same-typed neighbouring
+values compress far better (run-length and dictionary encoding, 10x is common),
+and the CPU can process a flat array of one type with SIMD instead of decoding a
+mixed-type record field by field. The cost is symmetric: `SELECT * WHERE
+order_id = ?` on a column store means 80 separate file reads reassembled into
+one row, and a single-row update means breaking a compressed run apart — which
+is why columnar engines support "mutations" that rewrite whole chunks, not
+row-level updates. **Column stores optimise for few columns of many rows; row
+stores optimise for many columns of few rows.**
+
+**Parquet is columnar, but via row groups, not one file per column.** Rows are
+split into row groups (100k–1M rows) and *within* a row group the data is
+column-by-column — so a worker can grab one row group and reassemble a row
+without seeking across the whole file. The footer holds min/max per column
+chunk, so a query like `WHERE date > 'Feb'` can skip entire row groups without
+reading a byte — a well-sorted file can answer a query touching 1% of the data
+by reading roughly 1% of it. Rule of thumb: **Avro for data in motion (Kafka
+messages, whole records), Parquet for data at rest (analytics).** The format
+being columnar doesn't guarantee the benefit — a file with one giant row group,
+or thousands of tiny 500-row files, gets none of it.
+
+### Deep-dive: choosing a datastore, worked
+
+Relates to [Choosing a datastore — a decision framework](#choosing-a-datastore--a-decision-framework).
+
+**Why the question order works:** questions 1–2 (access patterns, per-operation
+consistency) are about *correctness* — get these wrong and the system is
+broken. Questions 3–6 (read:write ratio, shape, query needs, scale ceiling) are
+about *scale* — get these wrong and the system is slow or expensive. Question 7
+(team, ops, cost model) is about *you*, and it's last only in order — it vetoes
+the others. Most teams start at question 5 or 6 ("we need something that
+scales") and work backwards, which is how a team ends up running Cassandra for
+40GB that Postgres would have served happily, with nobody who can debug it at
+2am.
+
+**Worked example, carried through all seven questions:** a mid-size retailer's
+order management — get order by id (high volume), list a customer's orders by
+date, update status, revenue by region by month (a few times a day), free-text
+address search. Consistency: creation/status updates linearizable, revenue
+report can be a day stale, search can lag a minute. Volume: ~200 orders/minute,
+read:write ~50:1 — small. Shape: firmly relational. Query needs: joins and
+aggregation plus one full-text case. Ceiling: a single primary for years. Ops:
+small team, RDS available. → **Postgres**, with a read replica for the
+reporting query and Postgres full-text for address search — nothing else until
+something measured says otherwise. Change one input — 50,000 orders/minute with
+sub-second fraud checks — and Q2/Q3/Q6 all flip, landing on Postgres for
+orders + Kafka/Flink for fraud + a warehouse for reporting. Same framework,
+different answers because the inputs changed, not because the framework did.
+
+**The DynamoDB-vs-Postgres tell:** DynamoDB has real atomicity (every
+single-item write is linearizable; conditional writes are the inventory-decrement
+pattern) and its reads aren't "easier," they're *narrower* — instant at any
+scale for the exact queries you designed for, and effectively impossible for
+anything else. The actual question is *"do I know all my access patterns in
+advance, and will they stay stable?"* If a product manager will eventually ask
+"can we see this broken down by region?", that's an unplanned query — cheap in
+Postgres (an afternoon of SQL), expensive in DynamoDB (a full table scan, or a
+GSI that's a second copy of the data paid for forever). The cost of rigidity is
+paid up front and feels free; the benefit only shows up at a scale most systems
+never reach.
+
+### Deep-dive: access patterns first, not entities
+
+Relates to [Data modeling](#data-modeling).
+
+Choosing columnar vs row is a smaller, mostly-settled decision (running the
+business is row, analysing it is columnar). Question 1 of the datastore
+framework decides something harder: **what shape the data physically takes, and
+how it's keyed.**
+
+| Pattern | What it decides |
+| --- | --- |
+| "Get order by id" | `order_id` is the primary access key — trivial in Postgres, and in DynamoDB it's the partition key, a permanent choice. |
+| "List orders for a customer, sorted by date" | `customer_id` and `date` must be co-located in storage order — a composite index `(customer_id, date)` in Postgres (column order matters), partition key `customer_id` + sort key `date` in DynamoDB. |
+| "Sum revenue by region by month" | `region` and `month` must be available without joining across a billion rows → denormalise region onto the order row, and this query shouldn't run on the primary at all. |
+
+None of those answers was "columnar" or "row" — they were which key, which sort
+order, which index, what gets copied where. The third pattern (many rows, few
+columns, aggregate) is the signature of an OLAP query, but the access pattern
+taught you that it belongs in a *different system*, not that it "wants
+columnar" directly.
+
+**Why entity-first is the trap:** modeling Customer/Order/OrderLine/Product and
+normalising gives a model that answers every query *adequately* and none of
+them *well* — the customer-orders-by-date screen ends up doing a join plus a
+sort over 200k rows on every page load. Access-pattern-first flips it: **the
+queries are the requirement, the model is the implementation.** In Postgres
+this mostly changes indexes and a few denormalisations; in a KV or wide-column
+store it changes *everything* — the table structure is a transcription of the
+query list, and storing the same data three times under three keys to serve
+three access patterns is normal there and insane in Postgres. The practical
+rule: write the query list with frequencies, and for each ask *what would have
+to be true on disk for this to be one cheap lookup?* — any conflict between two
+queries is an index, a denormalisation, or a second store you need.
+
+### Deep-dive: consistency per operation, and making stale reads safe
+
+Relates to [Transactions and isolation](#transactions-and-isolation).
+
+**The three-path split.** The same application routes three operations down
+three different paths based on one question — *if this value is 200ms out of
+date, what breaks?*
+
+| Operation | Requirement | Where it runs |
+| --- | --- | --- |
+| Decrement inventory | Linearizable | Primary, in a transaction — no cache, no replica |
+| Show product page | Seconds stale is fine | Cache or read replica, TTL = staleness budget |
+| Recommendation feed | Minutes stale is fine | Precomputed KV store, rebuilt by a batch job |
+
+**The inventory race and its fix.** Read-modify-write in application code
+(`qty = get(); if qty > 0: set(qty-1)`) lets two threads both read 1 and both
+write 0 — two units sold, one in stock. The fix pushes the check into a single
+atomic statement the database evaluates: `UPDATE inventory SET quantity =
+quantity - 1 WHERE product_id = ? AND quantity > 0`, then check the affected
+row count. This works cheaply because inventory is **single-key** — all
+contention is on one row. *Multi-key* linearizability (decrement stock AND
+charge the card AND create the order, atomically) is what gets expensive, which
+is why real checkout flows use a **reservation**: hold stock for 10 minutes
+(one cheap linearizable write), then take payment, then confirm — one hard
+distributed transaction traded for two easy local ones plus a timeout.
+
+**You don't fix a stale read by making the read fresh — you fix it by making
+the write refuse to commit against state that changed.** Even a read from the
+primary is stale by the time the application acts on it; the bug is *trusting*
+the value at write time, not the staleness of the read itself. Two cases:
+
+- **Case A — the write can be expressed relative to current state** (inventory,
+  balances, counters): `WHERE quantity > 0` never uses the stale number the
+  replica returned, so both users can read stale values and the outcome is
+  still correct. Cheapest, most robust — use it whenever the write can be
+  phrased as a relative change with a guard condition.
+- **Case B — the write depends on what the user actually saw** (editing a
+  product, approving a displayed price): carry a version/etag through from read
+  to write — `WHERE id = ? AND version = 7` — so a concurrent update makes the
+  write affect zero rows and fail loudly instead of silently overwriting. This
+  is optimistic concurrency control (JPA's `@Version`, HTTP `ETag`/`If-Match`).
+
+**When the check fails:** Case A (inventory) — don't retry, the answer is
+genuinely "sold out." Case B (concurrent edit) — a background job can retry
+with backoff; a human editing a form should be *shown* the conflict, not
+silently overwritten. Make the operation idempotent (a client-generated
+idempotency key) so a retry after a timeout doesn't double-decrement. Pessimistic
+locking (`SELECT ... FOR UPDATE`) is correct but holds a lock across the whole
+read-decide-write span — reserve it for frequent conflicts where retrying is
+expensive; for normal checkout the Case A conditional update holds the lock for
+microseconds instead of milliseconds. **The rule:** never let application code
+perform check-then-act across a network boundary — express the condition
+inside the write, or hold a lock for the entire span.
+
+### Deep-dive: write-heavy patterns and why LSM trees exist
+
+Relates to [Indexing and query performance](#indexing-and-query-performance)
+and [Data modeling](#data-modeling).
+
+**The ladder — work down it in order, each step costs more than the last:**
+
+1. **Don't write it** — coalesce and sample. "Last seen at" becomes one update a
+   minute kept in memory and flushed periodically; view counts get buffered and
+   flushed as `+247` instead of 247 increments. Routinely removes 90% of write
+   volume.
+2. **Batch** — one statement writing 1,000 rows beats 1,000 statements writing
+   one; Postgres `COPY` is roughly 10x faster than `INSERT`.
+3. **Cut the cost of each write** — every index is a write tax; audit and drop
+   unused ones. Synchronous replication doubles write latency if durability
+   allows async instead.
+4. **Buffer with a queue (write-behind)** — absorbs spikes (5k writes/sec
+   sustained DB, 40k/sec for 30 seconds during a flash sale) but doesn't raise
+   long-run capacity, and turns the write asynchronous (needs idempotency keys).
+5. **Append instead of update** — update-in-place is expensive (find the page,
+   lock, modify, WAL, and in Postgres a whole new row version autovacuum must
+   clean up). **Event sourcing** takes this to its conclusion: never update the
+   balance, append `Deposited(100)`, derive it — which is why event sourcing and
+   CQRS pair so often.
+6. **Spread the writes** — partitioning/sharding, designed for early because
+   it's hard to retrofit. The entire game is the partition key; a classic
+   mistake is partitioning event data by timestamp, so all of today's writes
+   land on one partition.
+7. **The single-row contention case** — 10,000 writes/sec to *one* row (a
+   viral post's like counter) can't be fixed by sharding, because it's one key.
+   Fix with **sharded counters** (split into N rows, write to one at random,
+   sum all N to read) or aggregate in a stream (Kafka + Flink, flush a periodic
+   total).
+
+Steps 1–3 are tuning and don't change the architecture — that's where effort
+should go first. A well-tuned Postgres does tens of thousands of writes/sec;
+confirm you're near that ceiling before reaching past step 3.
+
+**LSM trees are the storage engine built for step 5.** The design comes from
+one hardware fact: sequential disk writes are fast, random ones are slow. A
+B-tree (Postgres, MySQL) updates in place — a random I/O. An LSM tree **never
+modifies anything on disk, only appends**: writes go to a write-ahead log, then
+an in-memory sorted memtable; when the memtable fills it flushes as an
+immutable, sorted **SSTable**. An update just writes the new value again (newest
+copy wins); a delete writes a **tombstone**. Reads check the memtable, then each
+SSTable newest-to-oldest — the hard part — rescued by **bloom filters** ("is
+this key definitely not here?", skip the file) and sparse indexes. A background
+**compaction** process merges SSTables, drops tombstoned rows, and reclaims
+space. The trade is named directly: **write amplification** (one logical write
+rewritten several times by compaction, 10–30x is normal), **read
+amplification** (one read may touch several files), **space amplification**
+(old versions sit until compaction runs) — versus a B-tree's low read/space
+amplification but expensive random writes. LSM is right for sustained
+high-volume writes with a known key pattern (event ingestion, time series,
+messaging); wrong for ad-hoc analytical queries, heavy joins, or volume a
+single relational database handles comfortably — which is most systems.
+
+### Deep-dive: partitioning vs sharding, and the partition-key/unique-constraint trap
+
+Relates to [Partitioning and sharding](#partitioning-and-sharding).
+
+**The toy-box version.** One toy box, everything piles in, the lid won't shut.
+Split into several boxes by a rule (dinosaurs in box 1, cars in box 2) — finding
+a dinosaur means opening one box. **That rule is the only thing that matters**;
+a bad rule (before/after my birthday) leaves one box growing forever.
+**Partitioning** = several boxes in your own room — one machine, several
+tables, the database can still join and transact across them for free.
+**Sharding** = the boxes are in different houses — a machine boundary, so joins,
+transactions and uniqueness stop being free. Hence: **partition early, shard
+late.**
+
+**Postgres range partitioning, concretely:**
+
+```sql
+CREATE TABLE orders (
+    order_id bigserial, customer_id bigint NOT NULL,
+    order_date date NOT NULL, amount numeric(12,2),
+    PRIMARY KEY (order_id, order_date)
+) PARTITION BY RANGE (order_date);
+
+CREATE TABLE orders_2026_02 PARTITION OF orders
+    FOR VALUES FROM ('2026-02-01') TO ('2026-03-01');
+```
+
+A query with `order_date` in the `WHERE` clause prunes to one partition; a query
+on `customer_id` alone scans **every** partition — partitioning made that query
+worse, because you optimise for the access patterns you wrote down. Pruning
+needs the raw column (`date_trunc(order_date)` defeats it) and a `DEFAULT`
+partition is a safety net that becomes a silent dumping ground if relied on.
+The benefit people actually partition for is lifecycle: `DETACH PARTITION` +
+`DROP TABLE` replaces an hours-long `DELETE FROM ... WHERE date < X` with
+near-instant metadata work — no vacuum storm.
+
+**Why the partition key must be in the unique key — and it's the reverse of
+what it looks like.** Postgres only has *local* indexes, one per partition,
+knowing nothing about the others. Including the partition key in the primary
+key doesn't let Postgres check uniqueness across all partitions — it lets
+Postgres **avoid** having to, by guaranteeing two rows that could collide are
+routed to the same partition. It's a routing guarantee, not a global check —
+which is why `UNIQUE (order_id, order_date)` happily accepts the same
+`order_id` twice under two different dates. Four real ways to get a genuinely
+unique `order_id` anyway: (1) generate IDs that can't collide — a shared
+sequence or UUIDv7 (covers ~95% of cases, but is a convention, not a
+constraint); (2) partition by something the ID already implies (`PARTITION BY
+HASH (order_id)`, giving up date pruning and cheap retention drops); (3) derive
+the partition key from a time-ordered ID (`PARTITION BY RANGE (order_id)`,
+keeping both properties approximately); (4) a separate unpartitioned registry
+table enforcing the constraint directly, at the cost of a shared contention
+point that can't be aged out. **The real choice: an enforced global unique key,
+or date-range partitioning — Postgres won't give both on the same column**
+(Oracle's global indexes offer both, at the cost of an expensive partition
+drop).
+
+### Deep-dive: DynamoDB, partitioning as the data model
+
+Relates to [The datastore families](#the-datastore-families) and
+[choosing a datastore](#choosing-a-datastore--a-decision-framework).
+
+In Postgres, partitioning is an optimisation added later. In DynamoDB it **is**
+the data model, mandatory and permanent: every item has a partition key, hashed
+to decide which physical partition holds it — no range or list option, no
+strategy choice. Vocabulary maps directly: table → table, **item** → row,
+**attribute** → column. The table designer decides *which attribute* is the
+partition key, once, at table creation; the writer decides *what value* it has,
+per write — the same as choosing what goes in a column.
+
+**Single-table design** puts related items in the same partition so the sort
+key does the work a join would have done:
+
+| PK | SK | attributes |
+| --- | --- | --- |
+| `CUSTOMER#42` | `PROFILE` | name, email |
+| `CUSTOMER#42` | `ORDER#2026-01-15#1001` | amount, status |
+
+"Get customer 42 and their recent orders" becomes one query on one partition,
+because DynamoDB has no joins and this co-locates the data instead. This only
+works because access patterns were enumerated first — a query without the
+partition key isn't a slow query like in Postgres, it's a `Scan`: reads the
+whole table, bills for everything read, with no "add an index later" escape (a
+GSI is a full second copy of the data, paid for permanently).
+
+**Hot-partition limits that bite:** 10GB per item collection (all items sharing
+a partition key, when an LSI exists) and 3,000 RCU / 1,000 WCU **per
+partition** — a table provisioned for 100,000 WCU is still capped at 1,000 if
+every write targets one key. `status = 'PENDING'` or `date = today` as a
+partition key puts all matching writes on one machine. **Write sharding** — a
+random numeric suffix (`PENDING#0`…`PENDING#9`), reads query all and merge —
+trades read cost for write throughput deliberately.
+
+**The deal, plainly:** DynamoDB says "tell me exactly which questions you'll
+ask — those are instant forever, at any size, but I'll only answer those."
+Postgres says "ask me anything, whenever — some answers will be slower, and
+past a certain size I'll struggle." Choose DynamoDB when access is by a known
+key, you need consistent single-digit-ms latency at any scale (not just
+average-case), and write volume genuinely spreads across many keys. The tell
+that you actually wanted Postgres: a product manager eventually asks "can we
+see this broken down by region?" — a question DynamoDB's key design didn't
+anticipate.
+
+### Deep-dive: sharding, what it actually costs, and picking a shard key
+
+Relates to [Partitioning and sharding](#partitioning-and-sharding) and
+[Distributed transactions across stores](#distributed-transactions-across-stores).
+
+**The one difference that creates every other difference:** partitioning splits
+data across tables on one machine; sharding splits it across **separate
+database servers that don't know about each other**. Cross that line and the
+database stops helping: no joins, no transactions, no unique constraints, no
+`ORDER BY` across shards — every one becomes the application's problem. You're
+not buying a feature, you're giving up features to get write scaling.
+
+**What actually forces sharding:** write throughput beyond one primary, dataset
+size beyond one machine, regulatory data residency (EU data must live in the
+EU), or blast-radius isolation. **"Our database is slow" isn't on the list** —
+that's usually missing indexes, N+1 queries, or analytics hitting the primary.
+
+**Strategies:** range (skew-prone on sequential keys like timestamps), hash
+(even spread, but `% N` means adding a server reshuffles almost everything),
+directory/lookup (total flexibility, but the lookup service becomes a
+dependency that must never go down — common in multi-tenant SaaS). The fix for
+`% N` is **consistent hashing / virtual buckets**: map keys to a large fixed
+number of buckets (never changed), then map buckets to physical shards —
+`hash(key) % 1024` never changes, only the bucket→shard assignment does, so
+adding a shard moves ~1/N of the data instead of all of it.
+
+**What you lose, concretely:**
+
+- **Cross-shard joins** — mitigated by co-locating tables on the same shard key
+  (shard both `orders` and `customers` by `customer_id`) and replicating small
+  lookup tables to every shard.
+- **Cross-shard transactions** — restructure so transactions stay within a
+  shard, or adopt a saga (local transactions + compensating actions).
+- **Global unique constraints and auto-increment IDs** — need a registry table
+  or collision-proof IDs (UUIDv7, Snowflake, per-shard sequence offsets).
+- **Aggregations and pagination** — `SUM` becomes scatter-gather across every
+  shard; deep offset pagination becomes impractical, cursor pagination is the
+  workaround.
+- **Schema migrations** — must run on every shard; tooling is mandatory.
+
+**Resharding a live system:** stand up the new shard, backfill the moving
+buckets while traffic continues, double-write old and new, **verify the two
+sides agree** (the step people underestimate — without it, drift surfaces from
+a customer months later), cut reads over bucket by bucket, then stop
+double-writing.
+
+**Exhaust these first, cheapest to most expensive:** fix queries/indexes,
+vertical scaling (a 128-core/2TB machine is real and cheaper than an
+engineering team), read replicas, caching, move analytics off the primary,
+partition within one database, a **functional split** (move a whole subsystem
+like billing to its own database — often enough on its own), archive cold data.
+
+**Picking the shard key:** same criteria as a partition key with higher stakes
+— high cardinality, even distribution, present in nearly every query, and
+stable. For most business systems it's `customer_id`/`tenant_id`, because it
+co-locates everything one customer touches so most queries stay single-shard;
+a tenant too large for one shard gets a dedicated shard or is sub-sharded.
+**Honest summary:** sharding converts a database problem into an application
+problem — write scaling and blast-radius isolation are bought with joins,
+transactions, constraints, and migrations, permanently.
+
+### Deep-dive: replicas vs shards, and CQRS on top
+
+Relates to [Replication](#replication) and
+[CQRS and Event Sourcing](#cqrs-and-event-sourcing).
+
+**Replicas copy writes. Shards divide writes.** A read replica is a full copy —
+every write to the primary must also apply on every replica, so adding
+replicas adds *read* capacity but never reduces anyone's write load; the
+primary now ships WAL to more replicas and, under synchronous replication,
+waits longer for acks. With N shards, each is a *different* database holding a
+*different* slice of the data — 4 shards at 10,000 writes/sec means each does a
+quarter of the work, and adding a fifth raises the ceiling again. **The
+asymmetry in one line: reads can be duplicated, writes must be divided.** They
+compose: shards give write capacity, replicas within each shard give read
+capacity on top.
+
+**Two different read problems, easy to conflate:**
+
+| Problem | Solved by | Why |
+| --- | --- | --- |
+| Read volume *within* a shard | Replicas | Shard B's replicas hold shard B's data — serve any read that includes the shard key |
+| Reads that don't fit the shard key | CQRS projection | Replicas do nothing here — a replica of shard B still only knows shard B |
+
+If shards are keyed by `customer_id` and someone asks "all orders shipped last
+Tuesday," every shard holds part of the answer — that's what CQRS is for here,
+not replicas. **How the projection actually gets built:** tap each shard's
+replication log (Postgres logical decoding via Debezium, MySQL binlog, DynamoDB
+Streams), publish to Kafka, and a consumer merges the streams into whatever
+store answers the query well (Elasticsearch for search, a warehouse for
+aggregation, a denormalised table keyed for the read). **Why CDC and not dual
+writes from the app:** dual writes have no atomicity — the DB commit can
+succeed while the Kafka publish fails, permanently out of sync with nothing to
+detect it; CDC reads the committed log, so it can't disagree with what
+committed. The projection is eventually consistent (seconds, occasionally
+minutes behind), so the routing rule from the consistency deep-dive applies
+directly: linearizable decisions go to the shard primary, reads tolerating
+staleness go to shard replicas, cross-shard/analytical reads go to the
+projection. **One correction to how this is usually phrased:** "read replicas
+**or** read views" is the wrong framing — it's usually both, and they're not
+alternatives. Replicas copy the write model at the same keying; projections are
+a different model with different keying. CQRS is justified once read patterns
+genuinely don't fit the write partitioning (usually true once you've sharded),
+but it costs a pipeline to operate and a reconciliation path to build — build
+that rebuild path early, before an incident forces it.
