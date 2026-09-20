@@ -4,7 +4,7 @@ Architect-level reference on how to store, model, replicate, partition, evolve,
 and cache data in a distributed system. Companion to the unanswered question list
 in [database-and-data-architecture-questions.md](database-and-data-architecture-questions.md),
 to [../architecture/cap-theorem.md](../architecture/cap-theorem.md), and to the
-deep-dive Q&A in [data-architecture-notes-1.md](../notes/data-architecture-notes-1.md).
+deep-dive Q&A in [data-architecture-notes.md](../notes/data-architecture-notes.md).
 
 ## Contents
 
@@ -88,9 +88,21 @@ stores only when a measured access pattern demands it.
 
 ## The datastore families
 
-> Deep-dive: [DynamoDB, partitioning as the data model](#deep-dive-dynamodb-partitioning-as-the-data-model)
+> Deep-dives: [DynamoDB, partitioning as the data model](#deep-dive-dynamodb-partitioning-as-the-data-model)
 > — item/attribute vocabulary, single-table design, hot-partition limits, and
-> why DynamoDB trades query flexibility for guaranteed latency at any scale.
+> why DynamoDB trades query flexibility for guaranteed latency at any scale;
+> [why relational gives up write scaling](#deep-dive-why-relational-gives-up-write-scaling)
+> — partitioning doesn't break queries, sharding does, and why that's specific
+> to relational's cross-row guarantees;
+> [four families compared, and the locality principle](#deep-dive-four-families-compared-and-the-locality-principle)
+> — key-value vs relational vs document vs wide-column side by side, and why
+> performance here is really "how many places must the disk visit";
+> [document databases, embedding vs referencing](#deep-dive-document-databases-embedding-vs-referencing)
+> — the bounded/unbounded rule, and where MongoDB's wide-column impersonation
+> does and doesn't work;
+> [wide-column and Cassandra, query-first modelling](#deep-dive-wide-column-and-cassandra-query-first-modelling)
+> — the no-boss ring, why a Cassandra table is a stored answer to one query,
+> and the multi-table write problem.
 
 | Family | Model | Strengths | Weak at | Examples |
 |---|---|---|---|---|
@@ -112,10 +124,12 @@ eventually- and strongly-consistent reads).
 
 ## Data modeling
 
-> Deep-dive: [access patterns first, not entities](#deep-dive-access-patterns-first-not-entities)
+> Deep-dives: [access patterns first, not entities](#deep-dive-access-patterns-first-not-entities)
 > — what a written-down access pattern actually decides (key, sort order,
 > denormalisation), and why entity-first modeling answers every query adequately
-> and none of them well.
+> and none of them well;
+> [four families compared, and the locality principle](#deep-dive-four-families-compared-and-the-locality-principle)
+> — why locality, not schema flexibility, is what makes a document read cheap.
 
 ### Relational: normalise, then denormalise deliberately
 
@@ -280,7 +294,9 @@ controller and fencing.
 > partition key in the unique key is a routing guarantee, not a global check;
 > [sharding, what it actually costs, and picking a shard key](#deep-dive-sharding-what-it-actually-costs-and-picking-a-shard-key)
 > — what genuinely forces sharding, consistent hashing, everything you give up,
-> and the ladder to exhaust first.
+> and the ladder to exhaust first;
+> [wide-column and Cassandra, query-first modelling](#deep-dive-wide-column-and-cassandra-query-first-modelling)
+> — what it looks like to shard from day one, with no leader and no cross-partition queries.
 
 Splitting one dataset across nodes so writes and storage scale horizontally.
 (Partitioning = within a store; sharding = across stores/nodes; often used
@@ -575,7 +591,7 @@ the OLTP database on a schedule.
 
 Plain-language walk-throughs from working through this note — the questions that
 needed more than the reference above. Full transcript:
-[data-architecture-notes-1.md](../notes/data-architecture-notes-1.md).
+[data-architecture-notes.md](../notes/data-architecture-notes.md).
 Each block links back to the section it belongs to.
 
 - [OLTP, OLAP and streaming, and why storage layout follows from purpose](#deep-dive-oltp-olap-and-streaming-and-why-storage-layout-follows-from-purpose) — OLTP vs OLAP vs streaming
@@ -587,6 +603,10 @@ Each block links back to the section it belongs to.
 - [DynamoDB, partitioning as the data model](#deep-dive-dynamodb-partitioning-as-the-data-model) — the datastore families
 - [Sharding, what it actually costs, and picking a shard key](#deep-dive-sharding-what-it-actually-costs-and-picking-a-shard-key) — partitioning and sharding; distributed transactions
 - [Replicas vs shards, and CQRS on top](#deep-dive-replicas-vs-shards-and-cqrs-on-top) — replication; CQRS and event sourcing
+- [Why relational gives up write scaling](#deep-dive-why-relational-gives-up-write-scaling) — the datastore families
+- [Four families compared, and the locality principle](#deep-dive-four-families-compared-and-the-locality-principle) — the datastore families; data modeling
+- [Document databases, embedding vs referencing](#deep-dive-document-databases-embedding-vs-referencing) — the datastore families
+- [Wide-column and Cassandra, query-first modelling](#deep-dive-wide-column-and-cassandra-query-first-modelling) — the datastore families; partitioning and sharding
 
 ### Deep-dive: OLTP, OLAP and streaming, and why storage layout follows from purpose
 
@@ -1019,3 +1039,209 @@ a different model with different keying. CQRS is justified once read patterns
 genuinely don't fit the write partitioning (usually true once you've sharded),
 but it costs a pipeline to operate and a reconciliation path to build — build
 that rebuild path early, before an incident forces it.
+
+### Deep-dive: why relational gives up write scaling
+
+Relates to [The datastore families](#the-datastore-families).
+
+**Partitioning doesn't break queries.** Within one Postgres, joins across
+partitions still work, transactions spanning partitions are still atomic, and
+foreign keys still hold. `WHERE customer_id = ?` on a date-partitioned table
+returns the right answer — it just scans all 24 partitions instead of one.
+**Slower, not broken.** So partitioning is a *tuning* step, not a *scaling*
+step: it never raises the write ceiling, because every partition still shares
+one machine's CPU, disk and WAL.
+
+**Sharding is where it actually breaks, and relational specifically hurts.**
+Cassandra and DynamoDB shard happily. Relational doesn't, because the things
+that break under sharding are exactly the things that make a database
+relational: joins, multi-row transactions, foreign keys, unique constraints.
+Every one of them assumes a single coordinator that sees all the data and can
+order operations against it. A key-value store never promised joins, so
+distributing it costs nothing; relational promised all of it, so distributing
+it means handing all of it back.
+
+> **Relational can be scaled horizontally for writes, but only by giving up the
+> properties that made it relational.**
+
+**Replicas don't help writes at all — not "a bit less," zero.** Ten replicas
+means ten machines each carrying the *full* write load, because every replica
+must apply every write to stay a faithful copy.
+
+**There is no escape hatch inside the relational model:** ACID needs one
+authority ordering writes → replicas copy that authority's output, they don't
+divide the work → partitioning rearranges data on that same one authority →
+sharding actually divides the work, and that's exactly what costs the
+guarantees.
+
+**It's a trade, not a law.** Spanner and CockroachDB do give SQL, joins and
+distributed transactions across machines — they just show the price:
+consensus per shard means every write waits for a quorum, milliseconds where
+a single Postgres primary takes microseconds, and far worse across regions.
+**They paid in latency instead of in lost guarantees.** Relational's
+guarantees are *cross-row*, and cross-row guarantees need a single
+coordinator — split the rows and either the guarantees go, or the latency
+goes up. There is no third option.
+
+### Deep-dive: four families compared, and the locality principle
+
+Relates to [The datastore families](#the-datastore-families) and
+[Data modeling](#data-modeling).
+
+**Every family optimises one access pattern and taxes the rest** — nothing
+here is generally "faster," only faster at the thing it was built for.
+
+| | Key-value | Relational | Document | Wide-column |
+|---|---|---|---|---|
+| Access | Only by known key | Any field, joins across tables | Any field in a collection; joins are the weak spot | Partition key required; range-slice on clustering key |
+| Core strength | Fastest lookup, trivial scaling | Enforced correctness — FKs, constraints, multi-row transactions | Locality — one aggregate, one read | Leaderless writes — any node accepts |
+| Write scaling | Easy — nothing to give up | Hard — needs one coordinator | Easier (joins already surrendered); still one primary per shard | Easiest — no primary at all |
+| Gave up | Every non-key question | Write scaling without sharding pain | Joins, cross-document constraints | Ad-hoc queries; data stored once per query |
+
+**Choosing, in order:** only ever fetch by a known key → key-value. Queries
+span entities — joins, aggregation, questions not yet asked → relational. One
+self-contained document answers it, and records are genuinely heterogeneous →
+document. "Everything for one entity, over time, by recency" at very high
+write volume → wide-column. If both relational and document feel true, pick
+relational — an unexpected join costs some SQL there; in a document store it
+costs a data migration.
+
+**Locality is the point worth remembering — it's not about schema
+flexibility, it's about how many places the disk has to visit:**
+
+| | Relational | Document |
+|---|---|---|
+| Fetching one order | 4 tables — header, lines, address, history | 1 document |
+| Physical work | 4 index lookups + join | 1 seek, 1 contiguous read |
+| Why | Normalised into separate places | Whole aggregate as one blob on disk |
+
+The mirror image: the same locality that makes reads cheap makes shared data
+expensive — a school name embedded in 500 student documents means 500 updates
+when it changes, where relational writes it once. Wide-column has its own
+version of the same principle at the *partition* rather than the *aggregate*
+level: a partition is contiguous and pre-sorted, so "latest 20 for this
+entity" is one sequential read with no sorting at query time.
+
+**Key-value vs wide-column** isn't about whether you *could* jam everything
+into one blob — it's what happens next: a key-value value is one opaque blob
+(read part of it → fetch and parse the whole thing; append one item → rewrite
+the blob), while a wide-column row is many cells sorted by a clustering key
+(range-scan a slice; append one small write). Hence *wide* — not many rows,
+but a single row that is enormously wide, with different columns per row.
+
+**Wide-column is not a warehouse**, despite both being associated with "big
+data": wide-column (Cassandra) is OLTP at scale — queries name a key
+("Anna's last 20 events"), single-digit-ms latency, row-oriented within a
+partition. Analytical/columnar (BigQuery) is OLAP — no key ("avg session by
+country, last quarter"), seconds-to-minutes latency, column-oriented across
+all rows. "Columnar" means two different things here and it's easy to
+conflate them.
+
+**The collapse case:** Postgres `JSONB` with a GIN index gives flexible
+documents with real indexing, *plus* joins, transactions and constraints —
+which is why the genuine reasons to reach for MongoDB tend to be operational
+(team knowledge, a managed platform, a measured sharding need) rather than
+modeling ones.
+
+### Deep-dive: document databases, embedding vs referencing
+
+Relates to [The datastore families](#the-datastore-families).
+
+**The picture:** relational is a filing cabinet — one drawer for names, one
+for hobbies, one for addresses, three drawers to learn everything about Anna.
+A document store is one envelope per person — one trip. **The entire design
+rule: put things together that you always look at together.** The warning
+that comes with it: an envelope is only a good idea while it's about one
+thing — stuff every receipt into it and it grows forever and gets slow to open
+and update.
+
+**Document querying is closer to relational than to key-value.** A document
+store can query by any field, including nested fields and array contents, not
+just a key — the real gap from key-value. But "can" isn't "should": a query
+on a non-indexed field scans every document, fine at 50,000 docs, a disaster
+at 50 million, so the same indexing discipline as relational applies. What
+document actually gave up is **joins** and **cross-document constraints**, not
+field querying.
+
+**The rule that decides embed vs reference is boundedness, not
+convenience:**
+
+> **Embed what is bounded and read together. Reference what is unbounded or
+> read separately.**
+
+A customer's addresses are bounded — a handful, reached a size and stayed
+there — so they embed. A customer's orders are unbounded — ten years is
+thousands — so they're separate documents linked by `customerId`, at the cost
+of no foreign key, no cascade, and "customer with recent orders" becoming two
+round trips (MongoDB's `$lookup` exists but is slower than a relational join
+and behaves poorly on sharded clusters). The checklist per piece of data:
+grows without limit → separate collection; always read with the parent →
+embed; read on its own or shared → separate; would push past a few hundred KB
+→ separate.
+
+**MongoDB can partly imitate the wide-column strategy, but only the
+modeling half.** A compound index like `{ userId: 1, ts: -1 }` gives "Anna's
+last 20 events" — the same partition-key-plus-clustering-key idea — and the
+bucket pattern (one document per user per month, events pushed into an array)
+is the closer analogue, formalized as MongoDB's time-series collections
+(5.0+). What doesn't translate is the *scaling* model: writes in Cassandra go
+to any node with no election on failover; in MongoDB writes go to the shard's
+primary, and adding capacity means adding a shard and rebalancing chunks.
+Cassandra earns its keep at hundreds of thousands of sustained writes/sec or
+when active-active writes across regions are required; below that, MongoDB or
+Postgres (with TimescaleDB for time-series shapes) serve the same pattern with
+far less operational pain.
+
+### Deep-dive: wide-column and Cassandra, query-first modelling
+
+Relates to [The datastore families](#the-datastore-families) and
+[Partitioning and sharding](#partitioning-and-sharding).
+
+**The picture: a ring of houses.** Hashing a key says which house holds it,
+and any house will take a write — there's no headmaster's office. The write
+is copied to the next two houses clockwise, so if one burns down nothing is
+lost and nobody holds a meeting about who's in charge. In Postgres or MongoDB
+one machine is the boss for any given piece of data, and if it dies, everyone
+pauses for an election; **in Cassandra there is no boss, ever** — which is
+why it keeps taking writes while machines die, and why adding nodes adds
+write capacity in a straight line. The cost: you must say *whose* data you
+want. "Whose notes mention a red bicycle?" has no answer without knocking on
+every door — so when a fact needs a second way to be found, it gets written a
+second time, on purpose, as the design rather than a workaround.
+
+**A Cassandra table isn't a place to store entities — it's a stored answer
+to one specific query,** with the primary key built from a **partition key**
+(hashed to place the row) followed by one or more **clustering keys**
+(sorting rows *within* that partition, which is how they sit on disk). This
+makes non-contiguous reads not just slower but often **not allowed**: CQL
+rejects a `WHERE` clause that doesn't start with the partition key, and
+`ALLOW FILTERING` — which would permit it by scanning every partition on
+every node — should be read as a syntax error, not an option. The rule that
+must not be broken: partition key plus *all* clustering columns must uniquely
+identify a row, or writes silently overwrite each other with no error.
+
+**Needing a second access pattern means a second table, kept in sync by
+hand** — no trigger, no cascade, the application performs every write, often
+inside a `LOGGED BATCH` for atomicity (though not isolation: a concurrent
+reader can see one table updated and not the other). This is affordable
+because Cassandra writes are cheap — no read-before-write, no coordination,
+pure LSM appends — so three writes here can genuinely cost less than one
+write plus an index update in a B-tree database. The two tempting
+alternatives are both traps in practice: **materialized views** (Cassandra
+maintains the second table for you, but are flagged experimental for years
+and known to drift without self-repairing) and **secondary indexes** (look
+like a normal index but are local to each node, so a lookup fans out to
+every node — workable only for high-cardinality columns queried within a
+known partition). Nothing enforces agreement between hand-kept tables, so the
+practical discipline is: put all writes for one logical event in one place in
+the code (a single repository method), rely on writes being naturally
+idempotent (every write is an upsert) so retries are safe, and run periodic
+reconciliation — drift is a *when*, not an *if*.
+
+**The mental shift from Postgres:** there, you model the data once and add
+indexes for new queries. **In Cassandra, a table *is* an index** — one
+materialization shaped for one query, so adding a query means adding a table,
+which means adding a write path. "Write down all your access patterns first"
+isn't advice here; it's the entire design process, the same idea as
+[access-patterns-first modeling](#deep-dive-access-patterns-first-not-entities)
+taken to its logical extreme.
