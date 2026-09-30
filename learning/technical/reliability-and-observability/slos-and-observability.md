@@ -4,7 +4,10 @@ Architect-level reference on defining reliability targets (SLIs / SLOs / error
 budgets), instrumenting systems (metrics, logs, traces), alerting on what
 matters, and running incidents. Companion to the circuit-breaker / bulkhead /
 resilience material in
-[../architecture/system-design-principles-and-resilience-patterns.md](../architecture/system-design-principles-and-resilience-patterns.md).
+[../architecture/system-design-principles-and-resilience-patterns.md](../architecture/system-design-principles-and-resilience-patterns.md),
+and to the deep-dive Q&A in
+[slos-and-observability-notes.md](../notes/slos-and-observability-notes.md) —
+each section below ends with **Deep-dive** links into the matching topic there.
 
 ## Contents
 
@@ -29,6 +32,7 @@ resilience material in
 - [Cost control for observability](#cost-control-for-observability)
 - [Anti-patterns](#anti-patterns)
 - [Architect checklist](#architect-checklist)
+- [Appendix: Q&A deep-dives](#appendix-qa-deep-dives)
 
 ---
 
@@ -43,6 +47,9 @@ resilience material in
   faster shipping, risky migrations, or planned maintenance.
 - This turns "should we ship?" and "should we stop and fix reliability?" from
   opinion-driven arguments into a data-driven policy.
+
+> Deep-dives: [why not 100%](../notes/slos-and-observability-notes.md#why-not-100) ·
+> [what "spend the gap between the target and 100%" means](../notes/slos-and-observability-notes.md#q-what-does-spend-the-gap-between-the-target-and-100-mean)
 
 ---
 
@@ -77,6 +84,9 @@ logs or the load balancer):
   not, except 429.)
 - **Good events** — what is "good"? (`status < 500 AND latency < threshold`.)
 
+> Deep-dives: [the terms, with examples](../notes/slos-and-observability-notes.md#the-terms) ·
+> [shouldn't the SLO come first? — journey → expectation → SLI → SLO → SLA → policy](../notes/slos-and-observability-notes.md#q-shouldnt-the-slo-come-first-and-then-we-pick-slis-to-cover-it)
+
 ---
 
 ## Choosing good SLIs
@@ -103,6 +113,9 @@ Pick **a small number** (2–3 per user journey). More SLIs dilute attention.
   `GET /health`. Consider weighting or separate SLOs for critical vs
   non-critical paths.
 - **The SLI must move when users are unhappy and not move when they aren't.**
+
+> Deep-dives: [SLI principles](../notes/slos-and-observability-notes.md#2-sli-principles) ·
+> [threshold + percentile, not an average (p99 / p99.9 explained)](../notes/slos-and-observability-notes.md#q-what-does-threshold--percentile-not-an-average-mean)
 
 ---
 
@@ -132,6 +145,9 @@ Allowed downtime per availability target:
   abruptly.
 - Review SLOs quarterly. They are hypotheses about user happiness, not
   commandments.
+
+> Deep-dive: [turning an SLO into minutes and failed requests](../notes/slos-and-observability-notes.md#3-error-budgets-and-burn-rate-alerting-simple-to-detailed)
+> (Level 3 — budget as time vs as events)
 
 ---
 
@@ -168,6 +184,10 @@ flapping):
 Benefits: few, meaningful alerts; severity is proportional to user impact;
 naturally quiet when a small error rate isn't threatening the SLO.
 
+> Deep-dive: [error budgets and burn-rate alerting, simple to detailed](../notes/slos-and-observability-notes.md#3-error-budgets-and-burn-rate-alerting-simple-to-detailed)
+> — six levels from the mobile-data-plan analogy through the formula, policy,
+> burn-rate maths and fast / medium / slow multi-window alerts.
+
 ---
 
 ## Monitoring vs observability
@@ -197,6 +217,11 @@ naturally quiet when a small error rate isn't threatening the SLO.
 
 Correlating a deploy marker with an SLO dip resolves a large fraction of
 incidents immediately.
+
+> Deep-dives: [the five signals, with analogies](../notes/slos-and-observability-notes.md#4-telemetry-the-five-signals) ·
+> [cardinality](../notes/slos-and-observability-notes.md#cardinality) ·
+> [how change tracking is done (beyond PRs and Jira)](../notes/slos-and-observability-notes.md#q-how-is-change-tracking-done-i-track-changes-as-prs-and-jira) ·
+> [adding profiles, and reading a flame graph](../notes/slos-and-observability-notes.md#q-how-do-i-add-profiles-is-there-a-library)
 
 ---
 
@@ -229,6 +254,11 @@ incidents immediately.
   session id) in metric labels. Those belong in **logs/traces**.
 - Normalise endpoint labels (`/orders/{id}` not `/orders/12345`).
 
+> Deep-dives: [cardinality](../notes/slos-and-observability-notes.md#cardinality) ·
+> [Prometheus — pull model, metric types, PromQL for error rate and p99](../notes/slos-and-observability-notes.md#prometheus) ·
+> [where Micrometer fits in a Spring Boot app](../notes/slos-and-observability-notes.md#q-where-does-micrometer-fit-in-a-spring-boot-app) ·
+> [the journey of one latency metric, and why metric percentiles are estimates](../notes/slos-and-observability-notes.md#q-the-journey-of-one-latency-metric-post-orders-taking-212-ms)
+
 ---
 
 ## Logs
@@ -251,6 +281,10 @@ incidents immediately.
   low-value lines at the collector.
 - Logs are for **events**, not metrics — don't derive dashboards from counting
   log lines if a counter would do (it's far cheaper).
+
+> Deep-dives: [logging principles](../notes/slos-and-observability-notes.md#principles) ·
+> [what goes in each level — checkout example and common mistakes](../notes/slos-and-observability-notes.md#q-what-goes-in-each-level-checkout-example) ·
+> [example structured log line](../notes/slos-and-observability-notes.md#example-structured-line)
 
 ---
 
@@ -275,6 +309,12 @@ incidents immediately.
 - Add span attributes for the dimensions you'll want to slice by (tenant, route,
   version, cache hit/miss) — but not unbounded PII.
 
+> Deep-dives: [traces and spans, with a worked checkout tree](../notes/slos-and-observability-notes.md#5-traces) ·
+> [traces vs debug logs](../notes/slos-and-observability-notes.md#q-how-are-traces-different-from-debug-logs) ·
+> [is tracing on by default? (Spring Boot 10% sampling)](../notes/slos-and-observability-notes.md#q-is-tracing-enabled-by-default) ·
+> [do I define spans manually? (`@WithSpan`, `@Observed`)](../notes/slos-and-observability-notes.md#q-do-i-have-to-define-spans-manually-in-code) ·
+> [trace views — waterfall, service map, flame graph](../notes/slos-and-observability-notes.md#q-is-there-a-graph-for-traces)
+
 ---
 
 ## OpenTelemetry
@@ -294,6 +334,14 @@ thing to standardise on so you're not locked to one vendor's agent.
 - Covers traces, metrics, and logs under one context model, so `trace_id` links
   all three.
 
+> Deep-dives: [what "CNCF standard" means](../notes/slos-and-observability-notes.md#q-what-is-the-cncf-standard) ·
+> [OTel parts and the Collector pipeline](../notes/slos-and-observability-notes.md#opentelemetry-otel) ·
+> [does the app or the Collector expose `/metrics`? — three patterns](../notes/slos-and-observability-notes.md#q-does-otel-expose-the-metrics-endpoint-or-does-the-collector) ·
+> [how Micrometer and OTel relate](../notes/slos-and-observability-notes.md#q-how-are-micrometer-and-otel-related) ·
+> [full example: Spring Boot → OTel Collector → Datadog](../notes/slos-and-observability-notes.md#10-full-example-spring-boot--otel-collector--datadog) ·
+> [who is the collector here — Prometheus?](../notes/slos-and-observability-notes.md#q-who-is-the-collector-here-prometheus) ·
+> [how the Collector pushes to Datadog, and its ports](../notes/slos-and-observability-notes.md#q-how-does-the-collector-give-data-to-datadog-does-it-expose-an-endpoint)
+
 ---
 
 ## Correlation across signals
@@ -311,6 +359,10 @@ The payoff of doing the above consistently:
 
 This only works if `trace_id` is everywhere, cardinality is disciplined, and
 deploys emit change markers.
+
+> Deep-dives: [how the signals work together in an incident](../notes/slos-and-observability-notes.md#how-the-signals-work-together-in-an-incident) ·
+> [trace ID vs correlation ID](../notes/slos-and-observability-notes.md#q-trace-id-vs-correlation-id) ·
+> [correlation ID vs causation ID](../notes/slos-and-observability-notes.md#q-correlation-id-vs-causation-id)
 
 ---
 
@@ -338,6 +390,9 @@ deploys emit change markers.
 | SEV2 | Significant degradation, SLO at serious risk | Page, urgent |
 | SEV3 | Minor / partial, workaround exists | Business hours |
 
+> Deep-dive: [burn-rate alerting (Levels 5–6)](../notes/slos-and-observability-notes.md#3-error-budgets-and-burn-rate-alerting-simple-to-detailed)
+> — why alert on "burning too fast" rather than raw error rate.
+
 ---
 
 ## Dashboards
@@ -349,6 +404,9 @@ deploys emit change markers.
 - **Journey dashboard:** end-to-end for a business flow (checkout) across all
   services involved.
 - Keep them few and curated. A wall of 200 graphs is not observability.
+
+> Deep-dives: [deploy markers and version labels on dashboards](../notes/slos-and-observability-notes.md#q-how-is-change-tracking-done-i-track-changes-as-prs-and-jira) ·
+> [Datadog widget queries for rate, errors, p99](../notes/slos-and-observability-notes.md#10-full-example-spring-boot--otel-collector--datadog)
 
 ---
 
@@ -388,6 +446,9 @@ deploys emit change markers.
   customer.
 - Declare early. A false alarm stood down in 10 minutes is far cheaper than a
   30-minute delay in engaging.
+
+> Deep-dives: [which signal to use at each step of an incident](../notes/slos-and-observability-notes.md#how-the-signals-work-together-in-an-incident) ·
+> [incident flow from SLO dip → deploy marker → PR/Jira → rollback](../notes/slos-and-observability-notes.md#q-how-is-change-tracking-done-i-track-changes-as-prs-and-jira)
 
 ---
 
@@ -431,6 +492,9 @@ deploys emit change markers.
   for change, change failure rate, MTTR. High performers deploy often *and* fail
   less — batch size is usually the lever.
 
+> Deep-dive: [the error-budget policy (Level 4)](../notes/slos-and-observability-notes.md#3-error-budgets-and-burn-rate-alerting-simple-to-detailed)
+> — what happens when the budget is left vs gone.
+
 ---
 
 ## Cost control for observability
@@ -446,6 +510,9 @@ Observability bills routinely rival compute. Levers:
   high-volume healthy paths.
 - **Attribute the cost** back to teams so the incentive lands where the emission
   decision is made.
+
+> Deep-dives: [cardinality](../notes/slos-and-observability-notes.md#cardinality) ·
+> [log cost and sampling](../notes/slos-and-observability-notes.md#principles)
 
 ---
 
@@ -484,3 +551,24 @@ Observability bills routinely rival compute. Levers:
 - [ ] Blameless postmortems; action items backlogged with owners and tracked to done
 - [ ] Chaos/game-day and load testing done before and periodically after go-live
 - [ ] Observability cost monitored and attributed to teams
+
+---
+
+## Appendix: Q&A deep-dives
+
+Plain-language walk-throughs from working through this note. Full transcript:
+[slos-and-observability-notes.md](../notes/slos-and-observability-notes.md).
+Each entry names the section above it belongs to.
+
+| Notes topic | Belongs to |
+|---|---|
+| [1. Reliability targets: SLI, SLO, SLA, error budget](../notes/slos-and-observability-notes.md#1-reliability-targets-sli-slo-sla-error-budget) | [Core idea](#core-idea-reliability-is-a-feature-with-a-target); [SLI, SLO, SLA](#sli-slo-sla--precise-definitions) |
+| [2. SLI principles](../notes/slos-and-observability-notes.md#2-sli-principles) | [Choosing good SLIs](#choosing-good-slis) |
+| [3. Error budgets and burn-rate alerting](../notes/slos-and-observability-notes.md#3-error-budgets-and-burn-rate-alerting-simple-to-detailed) | [Error budgets and burn-rate alerting](#error-budgets-and-burn-rate-alerting); [Alerting](#alerting) |
+| [4. Telemetry: the five signals](../notes/slos-and-observability-notes.md#4-telemetry-the-five-signals) | [The telemetry signals](#the-telemetry-signals); [Metrics](#metrics); [Correlation across signals](#correlation-across-signals) |
+| [5. Traces](../notes/slos-and-observability-notes.md#5-traces) | [Traces](#traces) |
+| [6. Trace ID, correlation ID, causation ID](../notes/slos-and-observability-notes.md#6-trace-id-correlation-id-causation-id) | [Correlation across signals](#correlation-across-signals); [Logs](#logs) |
+| [7. Logs](../notes/slos-and-observability-notes.md#7-logs) | [Logs](#logs); [Cost control](#cost-control-for-observability) |
+| [8. Change tracking and profiles](../notes/slos-and-observability-notes.md#8-change-tracking-and-profiles) | [The telemetry signals](#the-telemetry-signals); [Dashboards](#dashboards); [Incident management](#incident-management) |
+| [9. CNCF, OpenTelemetry, Prometheus, Micrometer](../notes/slos-and-observability-notes.md#9-cncf-opentelemetry-prometheus-micrometer) | [OpenTelemetry](#opentelemetry); [Metrics](#metrics) |
+| [10. Full example: Spring Boot → OTel Collector → Datadog](../notes/slos-and-observability-notes.md#10-full-example-spring-boot--otel-collector--datadog) | [OpenTelemetry](#opentelemetry); [Dashboards](#dashboards) |

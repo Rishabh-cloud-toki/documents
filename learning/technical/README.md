@@ -169,13 +169,14 @@ architect checklist.
 </details>
 
 <details>
-<summary><b>📈 Reliability & observability</b> — 1 note</summary>
+<summary><b>📈 Reliability & observability</b> — 2 notes</summary>
 
 <br>
 
 | Note | | What's in it |
 |---|---|---|
 | [SLOs, observability & reliability engineering](reliability-and-observability/slos-and-observability.md) | ✅ | Running systems in production — SLIs/SLOs/SLAs, error budgets, telemetry signals, tracing, incident management, postmortems. See detail below. |
+| [Observability — Q&A notes](notes/slos-and-observability-notes.md) | ✅ | The conversational companion to the above: why not 100% and spending the error budget, SLI-before-SLO ordering, threshold + percentile vs averages, error budgets and burn-rate alerting from simple to detailed, the five telemetry signals and cardinality, traces vs debug logs and auto- vs manual spans, trace / correlation / causation IDs, log levels with a checkout example, change tracking and continuous profiling, CNCF / OpenTelemetry / Prometheus / Micrometer and how they fit, and a full Spring Boot → OTel Collector → Datadog walk-through including the journey of one latency metric. |
 
 <details>
 <summary>Detailed contents — <i>SLOs, observability & reliability engineering</i></summary>
