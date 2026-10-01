@@ -205,7 +205,7 @@ architect checklist.
 
 | Note | | What's in it |
 |---|---|---|
-| [JWT & OAuth authentication](security/jwt-and-oauth-authentication.md) | ✅ | JWT authorization in Spring Boot, Angular + Okta OIDC login flow, access-token refresh, and flow diagrams. *(Previously filed as `CAP Theorem.md` — renamed to match its actual content.)* |
+| [JWT & OAuth authentication](security/jwt-and-oauth-authentication.md) | ✅ | Architect-level reference: OAuth 2.0 / OIDC roles and grant types, JWT anatomy, signing & JWKS rotation, validation checklist, PKCE, browser token storage & BFF, refresh-token rotation, Spring Boot resource server, identity propagation across microservices, revocation/logout, DPoP, threats, anti-patterns and checklist, plus a worked Angular + Okta flow. *(Previously filed as `CAP Theorem.md` — renamed to match its actual content.)* |
 
 </details>
 
