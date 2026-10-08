@@ -3,7 +3,7 @@
 Technical study notes and interview prep. For the engineering-management track see
 [../management/README.md](../management/README.md). Root index: [../README.md](../README.md).
 
-- **Notes:** 25
+- **Notes:** 27
 - **Status legend:** ✅ full write-up · ✍️ partial / has TODO sections · 📋 checklist / question list · 🌱 stub / reading list only
 - **Planned / not yet written:** [../to-be-added.md](../to-be-added.md)
 
@@ -105,6 +105,18 @@ cost, bulkhead vs rate limiter vs circuit breaker vs load shedding, idempotency 
 **Part 6** is a 20-question self-test.
 
 </details>
+
+</details>
+
+<details>
+<summary><b>🌳 Data structures</b> — 2 notes</summary>
+
+<br>
+
+| Note | | What's in it |
+|---|---|---|
+| [Trees — reference](data-structures/trees.md) | ✍️ | Quick reference: for each topic, the problem it solves, the core idea, key facts and complexity tables — tree vocabulary and shapes, BST, rotations, Red-Black rules, traversals, `TreeMap`/`TreeSet` vs `HashMap`, AVL and AVL vs Red-Black, heap and trie previews (not yet read), a prioritised list of tree topics still to cover (B+ trees, classic problems, segment trees, Merkle trees…) and a decision guide. Every section links into the deep-dive. |
+| [Trees — deep-dive notes](notes/trees-notes.md) | ✍️ | The teaching companion, each topic explained from basics as problem → idea → how it works → why it works → trade-off, with check-yourself questions: tree vocabulary, BST search/insert/delete, rotations, Red-Black rules and insertion with a worked example, recursive and iterative traversals, the `TreeMap` navigation API and gotchas, AVL balance factor, four cases, pseudocode and worked rotations, AVL vs Red-Black, and heap and trie previews with worked examples. Heaps and tries are previews until read. |
 
 </details>
 
