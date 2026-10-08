@@ -7,7 +7,7 @@ Personal study notes and interview prep, split into two tracks:
 | 🛠️ **Technical** | [technical/README.md](technical/README.md) | Architecture & system design, backend & messaging, data, reliability & observability, security, frontend, Gen AI, and the technical interview question bank. |
 | 👥 **Management** | [management/README.md](management/README.md) | Engineering-management interview prep — people & delivery management, stakeholder management, and role-specific preparation. |
 
-- **Total notes:** 28 (25 technical, 3 management)
+- **Total notes:** 30 (27 technical, 3 management)
 - **Planned / not yet written:** [to-be-added.md](to-be-added.md) — backlog of architect-level gaps still to cover.
 - **Status legend:** ✅ full write-up · ✍️ partial / has TODO sections · 📋 checklist / question list · 🌱 stub / reading list only
 
@@ -20,6 +20,7 @@ technical/
   architecture/                  system design, CAP, design patterns, SOLID, diagramming
   backend-and-messaging/         Spring Boot, microservices, Kafka / event-driven
   data/                          data architecture, database questions
+  data-structures/               trees (BST, AVL, Red-Black, heaps, tries)
   reliability-and-observability/ SLOs, error budgets, telemetry, incidents
   security/                      JWT / OAuth / OIDC
   frontend/                      Angular
