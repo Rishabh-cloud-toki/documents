@@ -36,6 +36,17 @@ Named across the notes (CAP, saga, quorum, consensus) but never explained:
 
 ---
 
+## Data structures — graphs
+
+The user is working through data structures in order (trees → heaps → tries → graphs).
+Planned as a separate topic once tries are done:
+
+- [ ] **Graphs** — nodes, edges, weights, directed vs undirected, adjacency list vs matrix, BFS and DFS (the tree traversals generalised)
+- [ ] **Dijkstra's shortest path with a heap** — *deliberately deferred from the heap notes.* Uses a `PriorityQueue`; Java has no decrease-key, so the standard implementation pushes duplicates and skips stale entries — see [heaps-notes.md, Level 6: lazy deletion](technical/notes/heaps-notes.md#lazy-deletion-and-stale-entries). Also Prim's MST.
+- [ ] Union-Find and Kruskal's MST, topological sort
+
+---
+
 ## Other known gaps (lower priority)
 
 From the earlier architect-POV review — see the conversation for detail:
