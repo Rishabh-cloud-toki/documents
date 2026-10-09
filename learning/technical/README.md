@@ -3,7 +3,7 @@
 Technical study notes and interview prep. For the engineering-management track see
 [../management/README.md](../management/README.md). Root index: [../README.md](../README.md).
 
-- **Notes:** 27
+- **Notes:** 29
 - **Status legend:** ✅ full write-up · ✍️ partial / has TODO sections · 📋 checklist / question list · 🌱 stub / reading list only
 - **Planned / not yet written:** [../to-be-added.md](../to-be-added.md)
 
@@ -109,14 +109,16 @@ cost, bulkhead vs rate limiter vs circuit breaker vs load shedding, idempotency 
 </details>
 
 <details>
-<summary><b>🌳 Data structures</b> — 2 notes</summary>
+<summary><b>🌳 Data structures</b> — 4 notes</summary>
 
 <br>
 
 | Note | | What's in it |
 |---|---|---|
 | [Trees — reference](data-structures/trees.md) | ✍️ | Quick reference: for each topic, the problem it solves, the core idea, key facts and complexity tables — tree vocabulary and shapes, BST, rotations, Red-Black rules, traversals, `TreeMap`/`TreeSet` vs `HashMap`, AVL and AVL vs Red-Black, heap and trie previews (not yet read), a prioritised list of tree topics still to cover (B+ trees, classic problems, segment trees, Merkle trees…) and a decision guide. Every section links into the deep-dive. |
-| [Trees — deep-dive notes](notes/trees-notes.md) | ✍️ | The teaching companion, each topic explained from basics as problem → idea → how it works → why it works → trade-off, with check-yourself questions: tree vocabulary, BST search/insert/delete, rotations, Red-Black rules and insertion with a worked example, recursive and iterative traversals, the `TreeMap` navigation API and gotchas, AVL balance factor, four cases, pseudocode and worked rotations, AVL vs Red-Black, and heap and trie previews with worked examples. Heaps and tries are previews until read. |
+| [Trees — deep-dive notes](notes/trees-notes.md) | ✍️ | The teaching companion, each topic explained from basics as problem → idea → how it works → why it works → trade-off, with check-yourself questions: tree vocabulary, BST search/insert/delete, why search is log n (height vs node count), Red-Black rules with the parent/grandparent/uncle roles and a worked insert, what pre/in/post-order mean with call-stack and stack traces for the recursive and iterative versions, the `TreeMap` `Entry` class and complexity of search and ordering, the `TreeMap` navigation API and gotchas, AVL balance factor, four cases, pseudocode and worked rotations, AVL vs Red-Black, and heap and trie previews with worked examples. Heaps and tries are previews until read. |
+| [Heaps — reference](data-structures/heaps.md) | 🌱 | Quick reference for binary heaps and priority queues: the complete-tree shape and heap property, array indexing, sift up / sift down, build-heap in `O(n)`, Java `PriorityQueue`, uses, and heap vs balanced BST. Preview — not yet read. |
+| [Heaps — deep-dive notes](notes/heaps-notes.md) | 🌱 | The teaching companion: why a sorted array or a BST is the wrong tool for "give me the min", the array trick, worked add and poll traces, why build-heap is `O(n)`, `PriorityQueue`, top-K and running median, and check-yourself questions. Preview — not yet read. |
 
 </details>
 

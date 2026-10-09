@@ -1,4 +1,4 @@
-# Trees Notes: From Basics to AVL, Red-Black, Heaps and Tries
+# Trees Notes: From Basics to AVL, Red-Black and Tries
 
 Oct 8, 2026 · @Rishabh Toki
 
@@ -9,7 +9,7 @@ questions to check yourself. Code is Java. The concise tables and decision guide
 live in the reference note; this file is where the reasoning lives.
 
 **Progress:** ✅ sections 1–7 read · 📖 section 8 (AVL, pseudocode) reading now ·
-⏭️ sections 10–11 (heaps, tries) not yet read, so they are previews.
+⏭️ section 11 (tries) not yet read, so it is a preview. Heaps have moved to their own files: [heaps-notes.md](heaps-notes.md).
 
 ## The map: how all the trees relate
 
@@ -79,7 +79,7 @@ TREE  (nodes + edges, one root, no cycles)                         → section 1
 │   │       │                       (used by TreeMap / TreeSet)      → section 7
 │   │       └── Treap · Splay · Scapegoat ... other strategies (know they exist)
 │   │
-│   ├── BINARY HEAP  (complete tree + parent ≤ children; NOT a BST)  → section 10
+│   ├── BINARY HEAP  (complete tree + parent ≤ children; NOT a BST)  → heaps-notes.md
 │   │
 │   └── Other binary trees ..... expression trees · Huffman trees
 │
@@ -145,7 +145,7 @@ Do I need to verify or sync big data?      → Merkle tree
 7. [TreeMap and TreeSet](#7-treemap-and-treeset)
 8. [AVL tree](#8-avl-tree)
 9. [Choosing between AVL and Red-Black](#9-choosing-between-avl-and-red-black)
-10. [Heaps (preview)](#10-heaps-preview)
+10. [Heaps (moved to their own notes)](#10-heaps-moved)
 11. [Tries (preview)](#11-tries-preview)
 
 ---
@@ -254,7 +254,7 @@ Full                 Complete              Perfect              Degenerate
 | Shape | Definition | Why it matters |
 |---|---|---|
 | **Full** | Every node has 0 or 2 children | Appears in expression trees |
-| **Complete** | Every level full except possibly the last, which fills left to right | What a **heap** requires (section 10) |
+| **Complete** | Every level full except possibly the last, which fills left to right | What a **heap** requires ([heaps](heaps-notes.md)) |
 | **Perfect** | All leaves at the same depth, all internal nodes have 2 children | Best case: `2^(h+1) − 1` nodes |
 | **Degenerate (skewed)** | Every node has one child | Worst case: behaves like a linked list |
 
@@ -270,6 +270,51 @@ the **height**, not the node count.
 
 Twenty steps versus a million steps for the *same data*. A tree is only useful if
 its height stays small.
+
+### Why searches take log n steps
+
+"`O(log n)`" is not magic; it comes from counting how many nodes fit in a tree of a
+given height.
+
+**Count the nodes of a perfect tree.** Level 0 has 1 node, level 1 has 2, level 2 has
+4, level 3 has 8, and level `k` has `2^k`. Add up levels 0 to `h`:
+
+```
+n = 1 + 2 + 4 + … + 2^h = 2^(h+1) − 1
+```
+
+**Solve for the height.** Rearranged, `2^(h+1) = n + 1`, so
+
+```
+h = log₂(n + 1) − 1   ≈   log₂ n
+```
+
+`log₂ n` simply answers *"how many times can I halve n before I reach 1?"* That is
+exactly what a search does: every comparison discards one whole subtree, roughly half
+of what is left.
+
+| Nodes `n` | Height `h` (perfect tree) | Why |
+|---|---|---|
+| 7 | 2 | `2³ − 1` |
+| 15 | 3 | `2⁴ − 1` |
+| 1,023 | 9 | `2¹⁰ − 1` |
+| 1,048,575 (~1 million) | 19 | `2²⁰ − 1` |
+| 1,073,741,823 (~1 billion) | 29 | `2³⁰ − 1` |
+
+**The takeaway:** *doubling the number of nodes adds just one level.* A billion
+entries are only about 30 comparisons deep.
+
+**Putting it together.**
+
+- Every tree operation walks one root-to-node path, so its cost is `O(height)`.
+- For a **balanced** tree, `height = O(log n)`, so the operation is `O(log n)`.
+- For a **degenerate** tree, `height = n`, so the operation is `O(n)`.
+
+That single relationship explains the whole topic: *balancing exists to keep the
+height near `log n`.* AVL (height up to ~1.44 log₂ n) and Red-Black (up to ~2 log₂ n)
+are both `O(log n)`, because constant factors are ignored; they only differ in the
+constant. The base of the logarithm is also a constant (`log₁₀ n` is `log₂ n` divided
+by about 3.3), which is why we write `log n` with no base.
 
 ### What "balanced" means
 
@@ -287,6 +332,9 @@ trees define "balanced" differently:
 1. A perfect binary tree has height 3 (counted in edges). How many nodes does it have?
 2. Why is a degenerate tree "just a linked list"?
 3. Why does the cost of a search depend on height rather than on the number of nodes?
+4. A perfect tree has 255 nodes. What is its height? (Hint: `255 + 1` is a power of 2.)
+5. If you double the number of nodes in a balanced tree, how many extra comparisons
+   does a search need in the worst case?
 
 ---
 
@@ -484,6 +532,72 @@ The longest path is therefore at most **twice** the shortest, which forces
 height ≤ 2 · log₂(n + 1)
 ```
 
+### Parent, grandparent and uncle
+
+Every Red-Black fix-up is described in terms of four nodes near the one that was just
+inserted. Learn these names first and the case table becomes easy to read.
+
+| Name | Who it is | Picture below |
+|---|---|---|
+| **N** | The node being fixed (at first, the newly inserted node) | green |
+| **P** | N's **parent** | amber |
+| **G** | N's **grandparent**, i.e. P's parent | grey |
+| **U** | N's **uncle**, i.e. P's **sibling** (the other child of G) | blue |
+
+```mermaid
+flowchart TD
+    G["G — grandparent"] --> P["P — parent"]
+    G --> U["U — uncle<br/>(sibling of P)"]
+    P --> N["N — new node"]
+
+    classDef n fill:#d1fae5,stroke:#059669,color:#064e3b
+    classDef p fill:#fef3c7,stroke:#d97706,color:#78350f
+    classDef g fill:#f3f4f6,stroke:#6b7280,color:#1f2937
+    classDef u fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    class N n
+    class P p
+    class G g
+    class U u
+```
+
+**Finding them in code.** The parent and grandparent come from following `parent`
+pointers upward, which is why Red-Black nodes (including `TreeMap`'s `Entry`, see
+section 7) store a `parent` reference. The uncle is "the child of G that is *not* P":
+
+```java
+Node parent(Node n)      { return n == null ? null : n.parent; }
+Node grandparent(Node n) { return parent(parent(n)); }
+
+Node uncle(Node n) {
+    Node g = grandparent(n);
+    if (g == null) return null;                       // no grandparent, no uncle
+    return parent(n) == g.left ? g.right : g.left;    // the other child of G
+}
+```
+
+**Line or triangle?** Compare which side N is on with which side P is on:
+
+```
+LINE (outer): same side             TRIANGLE (inner): opposite sides
+
+      G                                   G
+     / \                                 / \
+    P   U                               P   U
+   /                                     \
+  N                                       N
+```
+
+- N and P are both left children (or both right) → **line** (N is an *outer* child).
+- One is a left child and the other a right child → **triangle** (N is an *inner*
+  child).
+
+**Why the uncle is the deciding node.** G's two children, P and U, together account
+for every path that passes through G. Colouring P and U black *adds* one black to
+each side, and colouring G red *removes* one from both, so the black count on every
+path through G is unchanged (rule 5 survives). That trick is only available when U is
+**red**: a red U can be turned black. A **black** (or missing) U cannot be recoloured
+away, so the tree must be reshaped by rotation instead.
+
 ### How insertion works
 
 Insert as in a normal BST, and colour the new node **red**. Why red? A black node
@@ -491,8 +605,7 @@ would add a black to one path and break rule 5 on *every* path through it, which
 hard to repair. A red node can only break rule 4 (a red-red pair) or rule 2 (a red
 root), both local problems.
 
-Name the nodes: **N** = new node, **P** = parent, **G** = grandparent, **U** = uncle
-(P's sibling).
+Then use the N, P, G, U names from the previous section:
 
 | Case | Situation | What to do |
 |---|---|---|
@@ -546,6 +659,10 @@ it.
 2. Why is a new node inserted red, not black?
 3. When is recolouring enough, and when must you rotate? Which can cascade?
 4. Why can a Red-Black tree never have a path more than twice as long as another?
+5. Define N, P, G and U. For a given N, how do you find its uncle?
+6. N is the right child of P, and P is the left child of G. Is that a line or a
+   triangle? Which case number is it if U is black?
+7. Why does recolouring P, U and G leave the black count on every path unchanged?
 
 ---
 
@@ -584,6 +701,42 @@ Example tree for everything below:
 The names are a mnemonic: *pre*, *in*, *post* say where the **node** goes relative
 to its children.
 
+### What each order means
+
+Every node has three jobs: **visit itself**, **handle its left subtree**, **handle its
+right subtree**. The left subtree always goes before the right one. The three DFS
+orders differ in only one thing: *when the "visit itself" job happens.*
+
+| Order | When the node is visited | Plain meaning | Why that is useful |
+|---|---|---|---|
+| **Pre-order** | **Pre** = *before* both subtrees | Parent first, then children. Top-down. | You can only create or copy a node *before* its children can hang off it, so this is the order for copying, serializing and printing a folder before its contents. |
+| **In-order** | **In** = *between* the subtrees | Everything smaller (left), then me, then everything larger (right). | In a BST, "left, me, right" is exactly ascending order. |
+| **Post-order** | **Post** = *after* both subtrees | Children first, then the parent. Bottom-up. | You can only compute a node's height, size or total once you know its children's, and you can only delete a node after its children are gone. |
+
+For the example tree, here is the position of each node in each order:
+
+| Node | Pre-order position | In-order position | Post-order position |
+|---|---|---|---|
+| 4 | 1st | 4th | 7th |
+| 2 | 2nd | 2nd | 3rd |
+| 1 | 3rd | 1st | 1st |
+| 3 | 4th | 3rd | 2nd |
+| 6 | 5th | 6th | 6th |
+| 5 | 6th | 5th | 4th |
+| 7 | 7th | 7th | 5th |
+
+Notice that **the root is first in pre-order and last in post-order**, which is the
+"before / after" distinction in one line.
+
+**A trick for reading them off by hand.** Draw a path that hugs the outline of the
+tree, going down the left side and coming back up the right. Put a dot at three
+places on every node: its **left side**, its **underside**, and its **right side**.
+Reading the dots you meet in order gives the traversals:
+
+- **pre-order** = the dot on each node's **left** side (you meet it as you pass by on the way down),
+- **in-order** = the dot **underneath** each node,
+- **post-order** = the dot on each node's **right** side (you meet it as you climb back up).
+
 ### How recursion does it
 
 The three DFS orders fall straight out of the definition:
@@ -598,6 +751,38 @@ void inorder(Node n) {
 ```
 
 Move the `visit(n)` line before both calls for pre-order, after both for post-order.
+
+```java
+void preorder(Node n)  { if (n == null) return; visit(n); preorder(n.left);  preorder(n.right); }
+void postorder(Node n) { if (n == null) return; postorder(n.left); postorder(n.right); visit(n); }
+```
+
+### Watching the recursion: the call stack
+
+Each call to `inorder` gets its own **stack frame**, which remembers *where that call
+is up to* ("I have finished the left side and still owe a visit"). Here is the tiny
+tree `2` with children `1` and `3`, indentation showing nesting:
+
+```
+inorder(2)
+  inorder(1)
+    inorder(null)      ← returns at once
+    visit 1            ← output: 1
+    inorder(null)
+  visit 2              ← output: 1 2
+  inorder(3)
+    inorder(null)
+    visit 3            ← output: 1 2 3
+    inorder(null)
+```
+
+At the deepest moment (inside `inorder(null)` under `inorder(1)`), the call stack holds
+three frames: `inorder(2)`, `inorder(1)`, `inorder(null)`. In general the stack is as
+deep as the **height + 1**, which is the `O(h)` space cost below.
+
+The frames waiting on the stack are exactly the "ancestors whose visit is still
+pending". The iterative versions simply keep those ancestors in an explicit stack of
+your own.
 
 **Cost:** `O(n)` time (each node once). Space is the call stack, `O(h)`: `O(log n)`
 for a balanced tree but `O(n)` for a skewed one, where a tree of ~10⁴–10⁵ nodes can
@@ -647,8 +832,34 @@ void preorderIter(Node root) {
 ```
 
 **Post-order** is the trickiest, because you must visit a node only after *both*
-subtrees. The easy trick: run a "node, **right**, left" pre-order and **reverse** the
-result. (Alternatives: two stacks, or a `lastVisited` pointer.)
+subtrees, so when you first reach a node you cannot pop it yet. There are two ways.
+
+*Easy trick:* run a "node, **right**, left" pre-order (the pre-order code with the two
+pushes swapped) and **reverse** the result.
+
+*Single stack with a `last` pointer:* peek at the top of the stack. If its right child
+exists and has not just been visited, go and do the right subtree first. Otherwise
+both sides are done, so visit and pop it.
+
+```java
+void postorderIter(Node root) {
+    Deque<Node> stack = new ArrayDeque<>();
+    Node cur = root, last = null;          // last = the node visited most recently
+    while (cur != null || !stack.isEmpty()) {
+        while (cur != null) {              // dive left, as in in-order
+            stack.push(cur);
+            cur = cur.left;
+        }
+        Node top = stack.peek();
+        if (top.right != null && top.right != last) {
+            cur = top.right;               // right subtree still to do
+        } else {
+            visit(top);                    // both subtrees done
+            last = stack.pop();
+        }
+    }
+}
+```
 
 **Level-order** needs a **queue** instead of a stack, which is what makes it
 breadth-first:
@@ -672,6 +883,63 @@ void levelOrder(Node root) {
 > **The pattern to remember:** DFS ↔ stack (or recursion), BFS ↔ queue. Swapping the
 > container swaps the traversal. The same pattern carries over unchanged to graphs.
 
+### Tracing the iterative versions
+
+On the example tree (`4` with `2` and `6`; `2` has `1` and `3`; `6` has `5` and `7`).
+The stack is written bottom → top, so the **rightmost item is the top**.
+
+**Iterative in-order.** `cur` is the node we are heading toward; "dive" pushes every
+node on the way down-left.
+
+| Step | Action | Stack after | Output so far |
+|---|---|---|---|
+| 1 | dive left from 4: push 4, 2, 1 | 4 2 1 | |
+| 2 | pop 1, **visit**; its right is null | 4 2 | 1 |
+| 3 | pop 2, **visit**; go to right child 3 | 4 | 1 2 |
+| 4 | dive from 3: push 3 | 4 3 | 1 2 |
+| 5 | pop 3, **visit**; its right is null | 4 | 1 2 3 |
+| 6 | pop 4, **visit**; go to right child 6 | | 1 2 3 4 |
+| 7 | dive from 6: push 6, 5 | 6 5 | 1 2 3 4 |
+| 8 | pop 5, **visit** | 6 | 1 2 3 4 5 |
+| 9 | pop 6, **visit**; go to right child 7 | | 1 2 3 4 5 6 |
+| 10 | push 7, then pop 7, **visit** | | **1 2 3 4 5 6 7** |
+
+The stack always holds *the ancestors whose own visit is still waiting for their left
+side to finish*, which is exactly what the recursion's call frames held.
+
+**Iterative pre-order.** Pop a node, visit it, push its right child and then its left
+child.
+
+| Step | Pop & visit | Push | Stack after | Output so far |
+|---|---|---|---|---|
+| 1 | 4 | 6, then 2 | 6 2 | 4 |
+| 2 | 2 | 3, then 1 | 6 3 1 | 4 2 |
+| 3 | 1 | (no children) | 6 3 | 4 2 1 |
+| 4 | 3 | (no children) | 6 | 4 2 1 3 |
+| 5 | 6 | 7, then 5 | 7 5 | 4 2 1 3 6 |
+| 6 | 5 | (none) | 7 | 4 2 1 3 6 5 |
+| 7 | 7 | (none) | | **4 2 1 3 6 5 7** |
+
+The right child is pushed first so that the **left child ends up on top** and is
+popped first.
+
+**Iterative post-order (single stack with `last`)** on the small tree `2` with
+children `1` and `3`:
+
+| Step | Stack (bottom → top) | `last` | Decision |
+|---|---|---|---|
+| 1 | 2 1 (after diving left) | none | top is 1, no right child → **visit 1**, pop |
+| 2 | 2 | 1 | top is 2, right child 3 ≠ last → go to 3 |
+| 3 | 2 3 | 1 | top is 3, no right child → **visit 3**, pop |
+| 4 | 2 | 3 | top is 2, right child 3 == last → **visit 2**, pop |
+
+Output: **1 3 2**. The `last` pointer is what stops node 2 from sending you back down
+into the right subtree you have just finished.
+
+**Complexity of all of these:** each node is pushed once and popped once, so time is
+`O(n)`. The stack never holds more than one root-to-node path, so extra space is
+`O(h)`.
+
 ### The trade-off
 
 Recursive code is short and mirrors the definition; iterative code is longer but
@@ -686,6 +954,11 @@ rarely asked.
 2. Why does in-order on a BST give sorted output?
 3. Why does iterative pre-order push the right child before the left?
 4. Which data structure turns a DFS template into a BFS template, and why?
+5. In one sentence each: what do "pre", "in" and "post" mean, and which traversal
+   would you use to compute the height of every node?
+6. Trace iterative in-order on the tree `5` with left child `3` and right child `8`,
+   showing the stack after each step.
+7. How deep does the call stack get when recursing over a tree of height `h`?
 
 ---
 
@@ -718,6 +991,88 @@ constructor.
 | Navigation queries | No | **Yes** |
 | Memory per entry | Lower | Higher (left, right, parent, colour) |
 
+### Inside TreeMap: the Entry class
+
+A `TreeMap` is nothing more than a pointer to the root of a Red-Black tree, plus a
+count and a comparator. Each **node** of that tree is an instance of a nested class
+named `Entry` (simplified from `java.util.TreeMap`):
+
+```java
+public class TreeMap<K,V> {
+    private final Comparator<? super K> comparator;   // null → use keys' natural order
+    private transient Entry<K,V> root;
+    private transient int size;
+
+    static final class Entry<K,V> implements Map.Entry<K,V> {
+        K key;
+        V value;
+        Entry<K,V> left;
+        Entry<K,V> right;
+        Entry<K,V> parent;
+        boolean color = BLACK;          // BLACK = true, RED = false
+        // getKey(), getValue(), setValue() …
+    }
+}
+```
+
+Map each field to what you have learned:
+
+| Field | Role |
+|---|---|
+| `key` | What the BST ordering is based on (section 3) |
+| `value` | The payload; the tree does not look at it |
+| `left`, `right` | The binary-tree child links |
+| `parent` | Needed by the Red-Black fix-up to find the **grandparent and uncle** (section 5), and by iteration to climb back up |
+| `color` | The one extra bit that makes it Red-Black (section 5) |
+
+`HashMap`'s node holds `hash`, `key`, `value` and `next`; `TreeMap`'s entry carries
+`left`, `right`, `parent` and `color` instead, which is why it uses more memory per
+entry.
+
+`Entry` implements `Map.Entry`, so `entrySet()` hands these nodes to you directly.
+Methods that return a single entry, such as `firstEntry()` or `floorEntry(k)`, return a
+read-only **snapshot** so that calling `setValue` cannot be used to tamper with the
+live tree.
+
+**Searching is the BST search from section 3**, using the comparator (or
+`compareTo`) at each node:
+
+```java
+Entry<K,V> getEntry(Object key) {          // simplified
+    Entry<K,V> p = root;
+    while (p != null) {
+        int cmp = compare(key, p.key);     // comparator.compare or ((Comparable) key).compareTo
+        if (cmp < 0)      p = p.left;
+        else if (cmp > 0) p = p.right;
+        else              return p;
+    }
+    return null;
+}
+```
+
+**Iteration uses `parent` instead of a stack.** To move from a node to the next one in
+sorted order (its **in-order successor**), `TreeMap` needs no explicit stack:
+
+```java
+Entry<K,V> successor(Entry<K,V> t) {
+    if (t == null) return null;
+    if (t.right != null) {                    // go right once, then as far left as possible
+        Entry<K,V> p = t.right;
+        while (p.left != null) p = p.left;
+        return p;
+    }
+    Entry<K,V> p = t.parent, child = t;       // otherwise climb until we arrive from a left child
+    while (p != null && child == p.right) {
+        child = p;
+        p = p.parent;
+    }
+    return p;
+}
+```
+
+This is the in-order traversal from section 6 with the stack replaced by `parent`
+pointers, so a full sorted iteration uses `O(1)` extra space.
+
 ### What only a tree can do
 
 ```java
@@ -735,6 +1090,36 @@ m.descendingMap();
 ```
 
 Each of these is a tree walk, `O(log n)`, not a scan.
+
+### Complexity of search and ordering
+
+Every cost below comes from one fact from section 2: a Red-Black tree's height is at
+most `2·log₂(n + 1)`, and a search walks a single root-to-node path.
+
+| Operation | Cost | Why |
+|---|---|---|
+| `get`, `containsKey` | **`O(log n)`** | One root-to-node path, at most ~`2 log₂ n` comparisons |
+| `put` | **`O(log n)`** | Search down, attach the new node, then fix-up: at most 2 rotations plus recolouring up the path |
+| `remove` | **`O(log n)`** | Search, then the delete fix-up (at most 3 rotations) |
+| `firstKey`, `lastKey` | `O(log n)` | Walk the left (or right) spine from the root. Not `O(1)`, unlike a heap's `peek` |
+| `floorKey`, `ceilingKey`, `lowerKey`, `higherKey` | `O(log n)` | A search that remembers the best candidate seen on the way down |
+| **Iterate all entries in sorted order** | **`O(n)`** | `successor` visits every edge at most twice, so about `O(1)` per step amortised. **No sorting needed.** |
+| Build a map by `n` `put`s | `O(n log n)` | `n` inserts at `O(log n)` each |
+| Creating a `subMap` / `headMap` / `tailMap` view | `O(1)` | Just records the bounds |
+| `size()` on such a view | `O(m)` | It has to walk its `m` entries |
+
+**Where "ordering" comes from.** The sort order is not computed on demand; it is
+*maintained incrementally*, a little at every `put` (the `O(log n)` is the price of
+putting the new node in its sorted position). Reading it back out in order is then
+just a pass over the tree.
+
+Compare with a `HashMap`: iteration is `O(n)` but in arbitrary order, so to get sorted
+output you must copy the keys and sort them, `O(n log n)`, every time you want them.
+`TreeMap` pays `O(log n)` per write so that sorted reads are `O(n)` and free.
+
+**One more factor: the comparison itself.** The `O(log n)` counts *comparisons*. If
+each comparison costs `k` (for example comparing two `String`s of length up to `k`),
+the real cost is `O(k · log n)`.
 
 ### When to choose it
 
@@ -770,6 +1155,12 @@ inside *both* maps.
 1. Give three scenarios where you would pick `TreeMap` over `HashMap`.
 2. What does `floorKey(k)` return, and what is it good for?
 3. Why can a `TreeSet<String>` with a case-insensitive comparator "lose" elements?
+4. Name the fields of `TreeMap.Entry` and say what each is for. Why does it need a
+   `parent` field?
+5. What is the cost of `get`, `firstKey` and a full sorted iteration, and where does
+   each cost come from?
+6. Why is "`TreeMap` then iterate" faster than "`HashMap` then sort" when you read the
+   sorted order many times?
 
 ---
 
@@ -1011,124 +1402,17 @@ the cheaper-writes choice wins, which is why `TreeMap` is Red-Black.
 
 ---
 
-## 10. Heaps (preview)
+## 10. Heaps (moved)
 
-> Not yet read. This is a map of what to expect so the reading lands quickly.
+Heaps now have their own files, because a heap is a different kind of structure from
+the search trees above: it lives in an array, keeps only the minimum or maximum at the
+top, and uses sift up / sift down instead of rotations.
 
-### The problem
+- Teaching notes: [heaps-notes.md](heaps-notes.md)
+- Quick reference: [heaps.md](../data-structures/heaps.md)
 
-Many tasks only ever ask for **the smallest (or largest) item right now**: the next
-job to run, the closest unvisited node in Dijkstra's algorithm, the top 10 scores.
-A sorted array makes insertion `O(n)`. A balanced BST works in `O(log n)` but does
-far more than needed — it keeps *everything* sorted when you only care about the
-extreme.
-
-### The idea
-
-A **binary heap** only guarantees that the extreme item is at the top. Two rules:
-
-1. **Shape:** it is a **complete** binary tree (every level full, the last filled
-   left to right).
-2. **Order (heap property):** in a **min-heap** every parent ≤ its children, so the
-   root is the minimum. In a **max-heap** every parent ≥ its children.
-
-A heap is **not** a BST. Siblings have no order relative to each other, and an
-in-order walk is not sorted. It promises less, so it can do it more cheaply.
-
-### The array trick
-
-Because the tree is *complete*, there are no gaps, so it can live in a plain array
-with no pointers. For a 0-indexed element `i`:
-
-```
-parent(i) = (i − 1) / 2
-left(i)   = 2i + 1
-right(i)  = 2i + 2
-```
-
-```
-index:   0  1  2  3  4
-array: [ 2, 5, 3, 9, 6 ]        as a tree:      2
-                                              /   \
-                                             5     3
-                                            / \
-                                           9   6
-```
-
-Check it: the children of index 1 (value 5) are indexes 3 and 4 (9 and 6), and the
-parent of index 4 is `(4 − 1) / 2 = 1`.
-
-### How the operations work
-
-**`add`:** put the new item at the end (keeps the tree complete), then **sift up**:
-while it is smaller than its parent, swap with the parent.
-
-Example, min-heap `[2, 5, 3, 9, 6]`, add 1:
-
-```
-append → [2, 5, 3, 9, 6, 1]     1 is at index 5, parent index 2 (value 3): swap
-       → [2, 5, 1, 9, 6, 3]     1 is at index 2, parent index 0 (value 2): swap
-       → [1, 5, 2, 9, 6, 3]     1 is the root: done
-```
-
-**`poll` (remove the minimum):** take the root; move the **last** item into the root
-(keeps the tree complete), then **sift down**: while it is bigger than a child, swap
-with the *smaller* child.
-
-```
-[1, 5, 2, 9, 6, 3]  → remove 1, move 3 to the root → [3, 5, 2, 9, 6]
-children of index 0 are 5 and 2: swap with the smaller (2) → [2, 5, 3, 9, 6]  done
-```
-
-| Operation | Cost |
-|---|---|
-| `peek` (see the min) | `O(1)`: it is `a[0]` |
-| `add` | `O(log n)`: climbs at most the height |
-| `poll` | `O(log n)`: descends at most the height |
-| **build-heap** from `n` items | **`O(n)`** |
-| find an arbitrary item | `O(n)`: no ordering to exploit |
-| heap sort | `O(n log n)`, in place |
-
-**Why build-heap is `O(n)`, not `O(n log n)`:** sift down from index `n/2 − 1` back
-to 0. Half the nodes are leaves and need no work; a quarter sift down at most one
-level; an eighth at most two. The total, `n/4·1 + n/8·2 + n/16·3 + …`, converges to
-a constant times `n`.
-
-### Java: `PriorityQueue`
-
-- A binary **min**-heap by default; pass `Comparator.reverseOrder()` for a max-heap.
-- `offer`/`poll` are `O(log n)`, `peek` is `O(1)`, `remove(Object)` is `O(n)`.
-- **Iterating it does not give sorted order**; only repeated `poll()` does.
-- Not thread-safe; use `PriorityBlockingQueue`.
-
-### Classic uses
-
-- **Top-K:** keep a min-heap of size K; any item bigger than the root replaces it.
-  `O(n log K)`.
-- Merge K sorted lists; Dijkstra's and Prim's algorithms.
-- Task schedulers and event simulation.
-- Running median (a max-heap and a min-heap together).
-
-### The trade-off
-
-| | Heap | Balanced BST |
-|---|---|---|
-| Find min | `O(1)` | `O(log n)` |
-| Insert | `O(log n)` | `O(log n)` |
-| Find an arbitrary key | `O(n)` | `O(log n)` |
-| Sorted iteration | No | Yes |
-| Memory | Compact array, no pointers | Pointers per node |
-
-A heap is the right tool exactly when you only ever need the extreme.
-
-### Check your understanding (after you read it)
-
-1. Why is a heap not a BST?
-2. Why can a complete tree be stored in an array but an arbitrary tree cannot?
-3. Walk through adding 0 to the min-heap `[2, 5, 3, 9, 6]`.
-4. Why is build-heap `O(n)` and not `O(n log n)`?
-5. How would you find the 3 largest items in a stream of a million numbers using
-   O(3) memory?
+On the map above, the heap is a sibling of the BSTs under binary trees, not a child:
+it is a **complete** binary tree with the heap property, not an ordered search tree.
 
 ---
 

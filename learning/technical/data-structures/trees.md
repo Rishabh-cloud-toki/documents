@@ -17,7 +17,7 @@ below ends with a **Deep-dive** link.
 | 7 | `TreeMap` / `TreeSet` vs `HashMap` | ✅ read |
 | 8 | AVL: balance factor | ✅ read |
 | 8 | AVL: pseudocode | 📖 reading now |
-| 10 | Heaps / `PriorityQueue` | ⏭️ next |
+| 10 | Heaps / `PriorityQueue` | ⏭️ next, in [its own files](heaps.md) |
 | 11 | Trie | ⏭️ next |
 | — | Gaps worth adding ([section 12](#12-topics-not-yet-on-the-list)) | 💡 suggested |
 
@@ -105,7 +105,7 @@ disks.
 7. [TreeMap and TreeSet](#7-treemap-and-treeset)
 8. [AVL tree](#8-avl-tree)
 9. [AVL vs Red-Black](#9-avl-vs-red-black)
-10. [Heaps (preview)](#10-heaps-preview)
+10. [Heaps (moved to their own notes)](#10-heaps-moved)
 11. [Tries (preview)](#11-tries-preview)
 12. [Topics not yet on the list](#12-topics-not-yet-on-the-list)
 13. [Quick decision guide](#13-quick-decision-guide)
@@ -154,7 +154,13 @@ if degenerate. A *balanced tree* keeps height `O(log n)` automatically:
 | Red-Black | Longest path ≤ 2 × shortest |
 | B-tree | All leaves at the same depth (wide nodes, for disks) |
 
-> Deep-dive: [the shapes and why height is everything](../notes/trees-notes.md#2-binary-trees-and-why-shape-matters)
+**Why log n:** a perfect tree of height `h` has `2^(h+1) − 1` nodes, so `h ≈ log₂ n`
+and **doubling the nodes adds one level** (1,000 → ~10, 1 million → ~20, 1 billion →
+~30). Every operation walks one path, so cost = `O(height)`: `O(log n)` if balanced,
+`O(n)` if degenerate. Balancing exists to keep the height near `log n`.
+
+> Deep-dives: [the shapes and why height is everything](../notes/trees-notes.md#2-binary-trees-and-why-shape-matters) ·
+> [why searches take log n steps](../notes/trees-notes.md#why-searches-take-log-n-steps)
 
 ---
 
@@ -232,7 +238,13 @@ Rules 4 + 5 ⇒ longest path ≤ 2 × shortest ⇒ `height ≤ 2·log₂(n+1)`.
 rotate (finishes).** At most 2 rotations on insert, 3 on delete. **Trade-off:** looser
 than AVL (slightly slower reads), fewer rotations, fiddlier code.
 
-> Deep-dives: [why the rules bound the height](../notes/trees-notes.md#why-the-rules-bound-the-height) ·
+**The four nodes in every fix-up:** **N** the node being fixed, **P** its parent, **G**
+its grandparent, **U** its uncle (P's sibling). Same side as its parent ⇒ *line*
+(outer); opposite side ⇒ *triangle* (inner). U decides everything: a red U can be
+recoloured away (P and U black, G red), a black or missing U forces a rotation.
+
+> Deep-dives: [parent, grandparent and uncle](../notes/trees-notes.md#parent-grandparent-and-uncle) ·
+> [why the rules bound the height](../notes/trees-notes.md#why-the-rules-bound-the-height) ·
 > [insertion cases and a worked example](../notes/trees-notes.md#how-insertion-works) ·
 > [deletion at a glance](../notes/trees-notes.md#deletion-at-a-glance)
 
@@ -253,8 +265,19 @@ or BFS (level by level).
 Recursive: `O(n)` time, `O(h)` stack (`O(n)` and `StackOverflowError` risk when
 skewed). **DFS ↔ stack, BFS ↔ queue.**
 
-> Deep-dives: [recursion](../notes/trees-notes.md#how-recursion-does-it) ·
-> [iterative versions](../notes/trees-notes.md#how-the-iterative-version-works)
+**What the names mean:** *pre* / *in* / *post* say when the **node** is visited
+relative to its two subtrees: before (parent first, top-down: copy, serialize),
+between (smaller, me, larger: sorted output) or after (children first, bottom-up:
+heights, sizes, delete). The root is first in pre-order and last in post-order.
+Recursion is one stack frame per ancestor still waiting; the iterative versions keep
+those ancestors in your own stack. Each node is pushed and popped once, so `O(n)` time,
+`O(h)` space.
+
+> Deep-dives: [what each order means, with positions for every node](../notes/trees-notes.md#what-each-order-means) ·
+> [recursion](../notes/trees-notes.md#how-recursion-does-it) ·
+> [the call stack, traced](../notes/trees-notes.md#watching-the-recursion-the-call-stack) ·
+> [iterative versions](../notes/trees-notes.md#how-the-iterative-version-works) ·
+> [stack tables for the iterative versions](../notes/trees-notes.md#tracing-the-iterative-versions)
 
 ---
 
@@ -276,7 +299,25 @@ skewed). **DFS ↔ stack, BFS ↔ queue.**
 lookups. Not thread-safe (`ConcurrentSkipListMap` is the concurrent sorted map).
 `HashMap` itself treeifies a bucket of ≥ 8 entries into a Red-Black tree.
 
-> Deep-dives: [navigation API](../notes/trees-notes.md#what-only-a-tree-can-do) ·
+**Inside `TreeMap`:** the tree's nodes are instances of a nested `Entry<K,V>` class with
+`key`, `value`, `left`, `right`, `parent` and a `color` bit; the map itself holds just
+`root`, `size` and the `comparator`. The `parent` pointer serves the Red-Black fix-up
+and lets iteration find each in-order successor without a stack.
+
+| Operation | Cost |
+|---|---|
+| `get` / `containsKey` / `put` / `remove` | **`O(log n)`** (one root-to-node path, ≤ ~2 log₂ n) |
+| `firstKey` / `lastKey` / `floorKey` / `ceilingKey` | `O(log n)` |
+| Iterate everything **in sorted order** | **`O(n)`**, no sorting step |
+| Build by `n` `put`s | `O(n log n)` |
+
+Order is *maintained* a little at each write (that is the `O(log n)`), so sorted reads
+are free; with a `HashMap` you would sort, `O(n log n)`, on every read. Each comparison
+costs more for long keys (`O(k log n)` for strings of length `k`).
+
+> Deep-dives: [the `Entry` class, search and successor code](../notes/trees-notes.md#inside-treemap-the-entry-class) ·
+> [complexity of search and ordering](../notes/trees-notes.md#complexity-of-search-and-ordering) ·
+> [navigation API](../notes/trees-notes.md#what-only-a-tree-can-do) ·
 > [when to choose it](../notes/trees-notes.md#when-to-choose-it) ·
 > [gotchas](../notes/trees-notes.md#gotchas) ·
 > [trees inside HashMap](../notes/trees-notes.md#a-fun-fact-that-ties-it-together)
@@ -329,23 +370,13 @@ shallowest tree.
 
 ---
 
-## 10. Heaps (preview)
+## 10. Heaps (moved)
 
-*Not yet read.* **Problem:** you often need only the smallest/largest item now.
-**Idea:** a **complete** binary tree where each parent ≤ its children (min-heap), stored
-in an array: `parent(i) = (i−1)/2`, `left = 2i+1`, `right = 2i+2`. It is **not** a BST.
+Heaps now have their own files: a heap is stored in an array, keeps only the min or max
+at the top, and uses sift up / sift down instead of rotations. It sits beside the BSTs
+on the map, not under them.
 
-| Operation | Cost |
-|---|---|
-| `peek` | `O(1)` |
-| `add` (sift up) / `poll` (sift down) | `O(log n)` |
-| build-heap | **`O(n)`** |
-| find arbitrary item | `O(n)` |
-
-Java's `PriorityQueue` is a min-heap; iterating it is *not* sorted. Uses: top-K,
-merge K lists, Dijkstra, schedulers.
-
-> Deep-dive: [the array trick, worked add/poll, why build-heap is O(n)](../notes/trees-notes.md#10-heaps-preview)
+> Reference: [heaps.md](heaps.md) · Deep-dive: [heaps-notes.md](../notes/heaps-notes.md)
 
 ---
 
