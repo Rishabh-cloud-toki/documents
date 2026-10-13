@@ -39,11 +39,11 @@ Named across the notes (CAP, saga, quorum, consensus) but never explained:
 ## Data structures — graphs
 
 The user is working through data structures in order (trees → heaps → tries → graphs).
-Planned as a separate topic once tries are done:
+Written (as previews, not yet read). Tries were deferred and still sit as a preview in the trees notes:
 
-- [ ] **Graphs** — nodes, edges, weights, directed vs undirected, adjacency list vs matrix, BFS and DFS (the tree traversals generalised)
-- [ ] **Dijkstra's shortest path with a heap** — *deliberately deferred from the heap notes.* Uses a `PriorityQueue`; Java has no decrease-key, so the standard implementation pushes duplicates and skips stale entries — see [heaps-notes.md, Level 6: lazy deletion](technical/notes/heaps-notes.md#lazy-deletion-and-stale-entries). Also Prim's MST.
-- [ ] Union-Find and Kruskal's MST, topological sort
+- [x] **Graphs** ([graphs.md](technical/data-structures/graphs.md), [graphs-notes.md](technical/notes/graphs-notes.md)) — nodes, edges, weights, directed vs undirected, adjacency list vs matrix, BFS and DFS (the tree traversals generalised)
+- [x] **Dijkstra's shortest path with a heap** (Level 5) — *deliberately deferred from the heap notes; now written.* Uses a `PriorityQueue`; Java has no decrease-key, so the standard implementation pushes duplicates and skips stale entries — see [heaps-notes.md, Level 6: lazy deletion](technical/notes/heaps-notes.md#lazy-deletion-and-stale-entries). Also Prim's MST.
+- [x] Union-Find and Kruskal's MST (Level 6), topological sort (Level 4)
 
 ---
 

@@ -407,7 +407,7 @@ Ordered by how likely they are to matter for a backend / architect track and int
    zig-zag, path sum, serialize/deserialize, build from pre-order + in-order, kth
    smallest in a BST, invert, balanced check.
 3. **N-ary trees** — file systems, org charts, the DOM, JSON/XML.
-4. **Graph traversal** — tree DFS/BFS is the cycle-free special case; the natural next
+4. **Graph traversal** — tree DFS/BFS is the cycle-free special case ([now in the graph notes](graphs.md)); the natural next
    step.
 
 **Medium value**
@@ -415,7 +415,7 @@ Ordered by how likely they are to matter for a backend / architect track and int
 5. **Segment tree / Fenwick tree** — range queries with point updates in `O(log n)`.
 6. **Skip list** — probabilistic alternative to balanced trees; powers
    `ConcurrentSkipListMap` and Redis sorted sets.
-7. **Union-Find** — a forest with path compression; connectivity, Kruskal's MST.
+7. **Union-Find** — a forest with path compression; connectivity, Kruskal's MST ([covered in the graph notes](../notes/graphs-notes.md#kruskals-algorithm-and-union-find)).
 8. **Treap, Splay, Scapegoat** — other balancing strategies.
 
 **Low priority / niche**

@@ -3,7 +3,7 @@
 Technical study notes and interview prep. For the engineering-management track see
 [../management/README.md](../management/README.md). Root index: [../README.md](../README.md).
 
-- **Notes:** 29
+- **Notes:** 31
 - **Status legend:** ✅ full write-up · ✍️ partial / has TODO sections · 📋 checklist / question list · 🌱 stub / reading list only
 - **Planned / not yet written:** [../to-be-added.md](../to-be-added.md)
 
@@ -109,7 +109,7 @@ cost, bulkhead vs rate limiter vs circuit breaker vs load shedding, idempotency 
 </details>
 
 <details>
-<summary><b>🌳 Data structures</b> — 4 notes</summary>
+<summary><b>🌳 Data structures</b> — 6 notes</summary>
 
 <br>
 
@@ -119,6 +119,8 @@ cost, bulkhead vs rate limiter vs circuit breaker vs load shedding, idempotency 
 | [Trees — deep-dive notes](notes/trees-notes.md) | ✍️ | The teaching companion, each topic explained from basics as problem → idea → how it works → why it works → trade-off, with check-yourself questions: tree vocabulary, BST search/insert/delete, why search is log n (height vs node count), Red-Black rules with the parent/grandparent/uncle roles and a worked insert, what pre/in/post-order mean with call-stack and stack traces for the recursive and iterative versions, the `TreeMap` `Entry` class and complexity of search and ordering, the `TreeMap` navigation API and gotchas, AVL balance factor, four cases, pseudocode and worked rotations, AVL vs Red-Black, and heap and trie previews with worked examples. Heaps and tries are previews until read. |
 | [Heaps — reference](data-structures/heaps.md) | 🌱 | Quick reference for binary heaps and priority queues: the complete-tree shape and heap property, array indexing, sift up / sift down, build-heap in `O(n)`, Java `PriorityQueue`, uses, and heap vs balanced BST. Preview — not yet read. |
 | [Heaps — deep-dive notes](notes/heaps-notes.md) | 🌱 | The layered teaching companion — Level 1 (what a heap is, in plain words, with one running example), Level 2 (worked insert, remove and heapify traces, with code), Level 3 (why the operations are `O(log n)` and build-heap is `O(n)`, heap sort, `PriorityQueue`, heap vs BST), Level 4 (comparators, tie-breaking, mistakes, heap sort with code), Level 5 (kth largest, top-K frequent, merge K sorted lists), Level 6 (two heaps for the median, scheduling, greedy, lazy deletion) and Level 7 (an interview playbook with a ten-problem practice set) — with check-yourself questions at each level. Dijkstra is deferred to graphs. Preview — not yet read. |
+| [Graphs — reference](data-structures/graphs.md) | 🌱 | Quick reference for graphs: vertices, edges and vocabulary and the types of graphs, adjacency list vs matrix, BFS and DFS with costs, directed graphs and topological sort, shortest paths (BFS, Dijkstra, Bellman–Ford), minimum spanning trees (Prim, Kruskal, Union-Find) and an interview algorithm-picker. Preview — not yet read. |
+| [Graphs — deep-dive notes](notes/graphs-notes.md) | 🌱 | The layered teaching companion — Level 1 (what a graph is, vocabulary, the types of graphs), Level 2 (storing a graph, BFS, DFS, components, with traces), Level 3 (complexity, why BFS gives shortest paths, path rebuilding, cycle detection, grids, edge counts, bipartite graphs), Level 4 (DAGs, Kahn's topological sort), Level 5 (Dijkstra with a heap and lazy deletion, traced), Level 6 (Prim, Kruskal, Union-Find) and Level 7 (an interview playbook with a ten-problem practice set) — with check-yourself questions at each level. Preview — not yet read. |
 
 </details>
 
