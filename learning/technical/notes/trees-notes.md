@@ -9,7 +9,7 @@ questions to check yourself. Code is Java. The concise tables and decision guide
 live in the reference note; this file is where the reasoning lives.
 
 **Progress:** ✅ sections 1–7 read · 📖 section 8 (AVL, pseudocode) reading now ·
-⏭️ section 11 (tries) not yet read, so it is a preview. Heaps have moved to their own files: [heaps-notes.md](heaps-notes.md).
+Heaps and tries have moved to their own files: [heaps-notes.md](heaps-notes.md) and [tries-notes.md](tries-notes.md).
 
 ## The map: how all the trees relate
 
@@ -87,7 +87,7 @@ TREE  (nodes + edges, one root, no cycles)                         → section 1
 │     B-tree · B+ tree (database indexes) · 2-3 tree                 → 💡 to add
 │
 ├── PREFIX TREES
-│     Trie · Radix / Patricia trie                                   → section 11
+│     Trie · Radix / Patricia trie                                   → tries-notes.md
 │
 ├── RANGE-QUERY TREES
 │     Segment tree · Fenwick tree (BIT)                              → 💡 to add
@@ -116,7 +116,7 @@ TREE  (nodes + edges, one root, no cycles)                         → section 1
   goal but packs many keys per node so a lookup touches few disk pages. That is why it,
   and not AVL or Red-Black, sits under database indexes.
 - **Where you are now:** you have finished the BST branch down to Red-Black and are
-  in the middle of AVL. Heaps and tries are next; everything marked 💡 is the
+  in the middle of AVL. Heaps and tries have their own notes; everything marked 💡 is the
   suggested follow-on list in [trees.md](../data-structures/trees.md#12-topics-not-yet-on-the-list).
 
 ### The same map as a decision flow
@@ -146,7 +146,7 @@ Do I need to verify or sync big data?      → Merkle tree
 8. [AVL tree](#8-avl-tree)
 9. [Choosing between AVL and Red-Black](#9-choosing-between-avl-and-red-black)
 10. [Heaps (moved to their own notes)](#10-heaps-moved)
-11. [Tries (preview)](#11-tries-preview)
+11. [Tries (moved to their own notes)](#11-tries-moved)
 
 ---
 
@@ -1416,100 +1416,13 @@ it is a **complete** binary tree with the heap property, not an ordered search t
 
 ---
 
-## 11. Tries (preview)
+## 11. Tries (moved)
 
-> Not yet read. A map of what to expect.
+Tries now have their own files: a trie is built for strings (one character per edge),
+answers prefix questions in `O(L)`, and has its own problems and memory trade-offs.
 
-### The problem
+- Teaching notes: [tries-notes.md](tries-notes.md)
+- Quick reference: [tries.md](../data-structures/tries.md)
 
-Storing words in a `HashMap` or a balanced tree lets you ask "is this exact word
-present?", but "give me every word starting with `ca`" means scanning all the words.
-Autocomplete needs prefix queries to be fast.
-
-### The idea
-
-A **trie** (prefix tree, pronounced "try") stores a string **one character per step**
-along a path. Each node represents a prefix; a flag marks "a word ends here". Words
-sharing a prefix share the path.
-
-```
-words: cat, car, dog
-
-      (root)
-      /    \
-     c      d
-     |      |
-     a      o
-    / \     |
-   t*  r*   g*          * = a word ends here
-```
-
-### How it works
-
-Each node holds its children, indexed by character, and a boolean.
-
-```java
-class TrieNode {
-    TrieNode[] next = new TrieNode[26];   // or Map<Character,TrieNode> for large alphabets
-    boolean end;
-}
-
-void insert(String w) {
-    TrieNode n = root;
-    for (char c : w.toCharArray()) {
-        int i = c - 'a';
-        if (n.next[i] == null) n.next[i] = new TrieNode();
-        n = n.next[i];
-    }
-    n.end = true;
-}
-
-boolean search(String w) {
-    TrieNode n = walk(w);
-    return n != null && n.end;            // must be a word, not just a prefix
-}
-
-boolean startsWith(String p) {
-    return walk(p) != null;               // any word with this prefix
-}
-
-TrieNode walk(String s) {                 // follow the path; null if it breaks
-    TrieNode n = root;
-    for (char c : s.toCharArray()) {
-        n = n.next[c - 'a'];
-        if (n == null) return null;
-    }
-    return n;
-}
-```
-
-`search` and `startsWith` differ only in the final check: "cat" **is** a word, "ca" is
-only a **prefix**.
-
-### Why it is fast
-
-Every operation walks one path of length `L` (the word's length), so it costs
-**`O(L)` — independent of how many words are stored.** A million-word dictionary
-looks up "cat" in three steps.
-
-### The trade-off
-
-- **Pros:** natural prefix queries; no hash collisions; words emerge in lexicographic
-  order when you traverse.
-- **Cons:** memory. An array of 26 pointers per node is mostly nulls.
-- **Mitigations:** store children in a `HashMap` (sparse); use a **compressed / radix
-  / Patricia trie**, which merges chains of single-child nodes into one edge; a
-  ternary search tree.
-
-### Where you will see it
-
-Autocomplete and search suggestions, spell check, IP routing (longest-prefix match),
-word-search puzzles, T9 predictive text.
-
-### Check your understanding (after you read it)
-
-1. Why is a trie lookup `O(L)` regardless of dictionary size?
-2. What is the difference between `search("ca")` and `startsWith("ca")` after inserting
-   "cat"?
-3. When would you switch from `TrieNode[26]` to a `HashMap` for children?
-4. How would you build autocomplete for the prefix "ca" on top of a trie?
+On the map above, tries sit under *prefix trees*, a branch of their own rather than a
+kind of search tree.

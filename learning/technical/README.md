@@ -3,7 +3,7 @@
 Technical study notes and interview prep. For the engineering-management track see
 [../management/README.md](../management/README.md). Root index: [../README.md](../README.md).
 
-- **Notes:** 31
+- **Notes:** 34
 - **Status legend:** ✅ full write-up · ✍️ partial / has TODO sections · 📋 checklist / question list · 🌱 stub / reading list only
 - **Planned / not yet written:** [../to-be-added.md](../to-be-added.md)
 
@@ -109,7 +109,7 @@ cost, bulkhead vs rate limiter vs circuit breaker vs load shedding, idempotency 
 </details>
 
 <details>
-<summary><b>🌳 Data structures</b> — 6 notes</summary>
+<summary><b>🌳 Data structures</b> — 9 notes</summary>
 
 <br>
 
@@ -121,6 +121,9 @@ cost, bulkhead vs rate limiter vs circuit breaker vs load shedding, idempotency 
 | [Heaps — deep-dive notes](notes/heaps-notes.md) | 🌱 | The layered teaching companion — Level 1 (what a heap is, in plain words, with one running example), Level 2 (worked insert, remove and heapify traces, with code), Level 3 (why the operations are `O(log n)` and build-heap is `O(n)`, heap sort, `PriorityQueue`, heap vs BST), Level 4 (comparators, tie-breaking, mistakes, heap sort with code), Level 5 (kth largest, top-K frequent, merge K sorted lists), Level 6 (two heaps for the median, scheduling, greedy, lazy deletion) and Level 7 (an interview playbook with a ten-problem practice set) — with check-yourself questions at each level. Dijkstra is deferred to graphs. Preview — not yet read. |
 | [Graphs — reference](data-structures/graphs.md) | 🌱 | Quick reference for graphs: vertices, edges and vocabulary and the types of graphs, adjacency list vs matrix, BFS and DFS with costs, directed graphs and topological sort, shortest paths (BFS, Dijkstra, Bellman–Ford), minimum spanning trees (Prim, Kruskal, Union-Find) and an interview algorithm-picker. Preview — not yet read. |
 | [Graphs — deep-dive notes](notes/graphs-notes.md) | 🌱 | The layered teaching companion — Level 1 (what a graph is, vocabulary, the types of graphs), Level 2 (storing a graph, BFS, DFS, components, with traces), Level 3 (complexity, why BFS gives shortest paths, path rebuilding, cycle detection, grids, edge counts, bipartite graphs), Level 4 (DAGs, Kahn's topological sort), Level 5 (Dijkstra with a heap and lazy deletion, traced), Level 6 (Prim, Kruskal, Union-Find) and Level 7 (an interview playbook with a ten-problem practice set) — with check-yourself questions at each level. Preview — not yet read. |
+| [Tries — reference](data-structures/tries.md) | 🌱 | Quick reference for tries (prefix trees): the prefix idea and end-of-word flag, `insert`/`search`/`startsWith`/autocomplete/delete costs, memory (array vs map children, compressed radix tries), trie vs `HashSet` vs `TreeMap`, classic problems and an interview picker. Preview — not yet read. |
+| [Tries — deep-dive notes](notes/tries-notes.md) | 🌱 | The layered teaching companion, with pseudocode before every algorithm — Level 1 (the prefix idea, a picture, vocabulary), Level 2 (insert, search, prefix check and autocomplete, traced), Level 3 (complexity, memory, deletion, prefix counts, compressed tries, trie vs the alternatives), Level 4 (wildcard search, longest common prefix, problems that build on tries) and Level 5 (an interview playbook with a ten-problem practice set), with check-yourself questions. Preview — not yet read. |
+| [DSA study plan](dsa-study-plan.md) | 📋 | The order the DSA notes are written and studied — tries, binary search / two pointers / sliding window, recursion and backtracking, dynamic programming, then data structures inside real systems (B+ trees, LSM trees, Bloom filters, consistent hashing, skip lists, Merkle trees) — with why in that order, what each step will contain, and a status table. |
 
 </details>
 

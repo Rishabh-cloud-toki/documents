@@ -18,7 +18,7 @@ below ends with a **Deep-dive** link.
 | 8 | AVL: balance factor | ✅ read |
 | 8 | AVL: pseudocode | 📖 reading now |
 | 10 | Heaps / `PriorityQueue` | ⏭️ next, in [its own files](heaps.md) |
-| 11 | Trie | ⏭️ next |
+| 11 | Trie | in [its own files](tries.md) |
 | — | Gaps worth adding ([section 12](#12-topics-not-yet-on-the-list)) | 💡 suggested |
 
 ## The map of trees
@@ -79,7 +79,7 @@ TREE  (nodes + edges, one root, no cycles)                       ✅
 │   ├── BINARY HEAP (complete, parent ≤ children; not a BST)     ⏭️
 │   └── Expression trees · Huffman trees                         💡
 ├── MULTIWAY SEARCH TREES ........ B-tree · B+ tree (DB indexes) 💡
-├── PREFIX TREES ................. Trie · Radix trie             ⏭️
+├── PREFIX TREES ................. Trie · Radix trie             ✍️ (tries.md)
 ├── RANGE-QUERY TREES ............ Segment tree · Fenwick tree   💡
 ├── SPATIAL TREES ................ Quadtree · k-d · R-tree       💡
 └── HASH TREES ................... Merkle tree                   💡
@@ -106,7 +106,7 @@ disks.
 8. [AVL tree](#8-avl-tree)
 9. [AVL vs Red-Black](#9-avl-vs-red-black)
 10. [Heaps (moved to their own notes)](#10-heaps-moved)
-11. [Tries (preview)](#11-tries-preview)
+11. [Tries (moved to their own notes)](#11-tries-moved)
 12. [Topics not yet on the list](#12-topics-not-yet-on-the-list)
 13. [Quick decision guide](#13-quick-decision-guide)
 
@@ -380,17 +380,13 @@ on the map, not under them.
 
 ---
 
-## 11. Tries (preview)
+## 11. Tries (moved)
 
-*Not yet read.* **Problem:** prefix queries ("all words starting with `ca`") force a
-scan in hash maps and BSTs. **Idea:** store a string one character per step along a
-path, with an "end of word" flag; shared prefixes share the path.
+Tries now have their own files: built for strings (one character per edge), prefix
+queries in `O(L)`, and their own memory trade-offs. They sit under *prefix trees* on the
+map, beside the search trees.
 
-`insert` / `search` / `startsWith` are all **`O(L)`** in the word length, independent of
-dictionary size. **Trade-off:** memory-hungry; fixed by hash-map children or
-compressed (radix) tries. Uses: autocomplete, spell check, IP routing.
-
-> Deep-dive: [code, search vs startsWith, trade-offs](../notes/trees-notes.md#11-tries-preview)
+> Reference: [tries.md](tries.md) · Deep-dive: [tries-notes.md](../notes/tries-notes.md)
 
 ---
 
