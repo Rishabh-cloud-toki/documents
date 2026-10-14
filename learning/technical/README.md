@@ -3,7 +3,7 @@
 Technical study notes and interview prep. For the engineering-management track see
 [../management/README.md](../management/README.md). Root index: [../README.md](../README.md).
 
-- **Notes:** 34
+- **Notes:** 36
 - **Status legend:** ✅ full write-up · ✍️ partial / has TODO sections · 📋 checklist / question list · 🌱 stub / reading list only
 - **Planned / not yet written:** [../to-be-added.md](../to-be-added.md)
 
@@ -109,7 +109,7 @@ cost, bulkhead vs rate limiter vs circuit breaker vs load shedding, idempotency 
 </details>
 
 <details>
-<summary><b>🌳 Data structures</b> — 9 notes</summary>
+<summary><b>🌳 Data structures</b> — 11 notes</summary>
 
 <br>
 
@@ -123,7 +123,9 @@ cost, bulkhead vs rate limiter vs circuit breaker vs load shedding, idempotency 
 | [Graphs — deep-dive notes](notes/graphs-notes.md) | 🌱 | The layered teaching companion — Level 1 (what a graph is, vocabulary, the types of graphs), Level 2 (storing a graph, BFS, DFS, components, with traces), Level 3 (complexity, why BFS gives shortest paths, path rebuilding, cycle detection, grids, edge counts, bipartite graphs), Level 4 (DAGs, Kahn's topological sort), Level 5 (Dijkstra with a heap and lazy deletion, traced), Level 6 (Prim, Kruskal, Union-Find) and Level 7 (an interview playbook with a ten-problem practice set) — with check-yourself questions at each level. Preview — not yet read. |
 | [Tries — reference](data-structures/tries.md) | 🌱 | Quick reference for tries (prefix trees): the prefix idea and end-of-word flag, `insert`/`search`/`startsWith`/autocomplete/delete costs, memory (array vs map children, compressed radix tries), trie vs `HashSet` vs `TreeMap`, classic problems and an interview picker. Preview — not yet read. |
 | [Tries — deep-dive notes](notes/tries-notes.md) | 🌱 | The layered teaching companion, with pseudocode before every algorithm — Level 1 (the prefix idea, a picture, vocabulary), Level 2 (insert, search, prefix check and autocomplete, traced), Level 3 (complexity, memory, deletion, prefix counts, compressed tries, trie vs the alternatives), Level 4 (wildcard search, longest common prefix, problems that build on tries) and Level 5 (an interview playbook with a ten-problem practice set), with check-yourself questions. Preview — not yet read. |
-| [DSA study plan](dsa-study-plan.md) | 📋 | The order the DSA notes are written and studied — tries, binary search / two pointers / sliding window, recursion and backtracking, dynamic programming, then data structures inside real systems (B+ trees, LSM trees, Bloom filters, consistent hashing, skip lists, Merkle trees) — with why in that order, what each step will contain, and a status table. |
+| [Systems data structures — reference](data-structures/systems-data-structures.md) | 🌱 | Quick reference for the structures inside databases and distributed stores: B+ trees (fan-out, splits, clustered vs secondary indexes), LSM trees (memtable, SSTable, compaction, amplification), Bloom filters (sizing), consistent hashing (ring, virtual nodes, alternatives), skip lists and Merkle trees, with how they fit together and an interview picker. Preview — not yet read. |
+| [Systems data structures — deep-dive notes](notes/systems-data-structures-notes.md) | 🌱 | The layered teaching companion, with pseudocode before each algorithm — Level 1 (six problems, six tools, one shop scenario), Level 2 (B+ tree search/split traced to a 10-key tree, LSM write/read/compaction traced, Bloom filter toy trace, consistent-hash ring with Java, skip list with Java, Merkle diff and inclusion proof), Level 3 (page fan-out and clustered/secondary indexes, amplification and compaction strategies, Bloom false-positive maths, Redis slots / rendezvous / jump hash, skip list vs Red-Black, a Cassandra-style system diagram) and Level 4 (twelve model architect Q&As, choosing, mistakes, practice prompts). Preview — not yet read. |
+| [DSA study plan](dsa-study-plan.md) | 📋 | The order the DSA notes are written and studied — tries, stacks and queues, binary search / two pointers / sliding window, recursion and backtracking, dynamic programming, then data structures inside real systems (B+ trees, LSM trees, Bloom filters, consistent hashing, skip lists, Merkle trees) — with why in that order, what each step will contain, and a status table. |
 
 </details>
 

@@ -396,7 +396,7 @@ Ordered by how likely they are to matter for a backend / architect track and int
 
 **High value**
 
-1. **B-tree and B+ tree** — the structure behind almost every database index; wide
+1. **B-tree and B+ tree** ([now written](systems-data-structures.md#2-b-tree)) — the structure behind almost every database index; wide
    nodes ⇒ shallow trees ⇒ few disk reads. Ties into
    [Data architecture](../data/data-architecture.md) (B-tree vs LSM indexes).
 2. **Classic tree problems** — height, diameter, validate BST, lowest common ancestor,
@@ -409,14 +409,14 @@ Ordered by how likely they are to matter for a backend / architect track and int
 **Medium value**
 
 5. **Segment tree / Fenwick tree** — range queries with point updates in `O(log n)`.
-6. **Skip list** — probabilistic alternative to balanced trees; powers
+6. **Skip list** ([now written](systems-data-structures.md#6-skip-list)) — probabilistic alternative to balanced trees; powers
    `ConcurrentSkipListMap` and Redis sorted sets.
 7. **Union-Find** — a forest with path compression; connectivity, Kruskal's MST ([covered in the graph notes](../notes/graphs-notes.md#kruskals-algorithm-and-union-find)).
 8. **Treap, Splay, Scapegoat** — other balancing strategies.
 
 **Low priority / niche**
 
-9. **Merkle tree** — Git, blockchains, Cassandra anti-entropy, Dynamo.
+9. **Merkle tree** ([now written](systems-data-structures.md#7-merkle-tree)) — Git, blockchains, Cassandra anti-entropy, Dynamo.
 10. **R-tree / quadtree / k-d tree** — spatial indexing (see the dispatch example in
     [System design — worked examples](../architecture/system-design-worked-examples.md)).
 11. **Suffix tree / array**, **Huffman tree**, **threaded trees**.

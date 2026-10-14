@@ -169,6 +169,9 @@ There is no "correct" schema independent of queries. Process:
 > — the seven-step ladder for write-heavy systems, and the LSM internals
 > (memtable, SSTable, compaction, bloom filters, the three amplifications)
 > behind the B-tree vs LSM row below.
+>
+> See also: [systems data structures](../notes/systems-data-structures-notes.md) — how B+ trees, LSM trees, Bloom filters,
+> consistent hashing, skip lists and Merkle trees actually work, with pseudocode and traces.
 
 - **B-tree index** (default in relational DBs): `O(log n)` lookups, supports
   range scans and ordering, kept sorted on write. Cost: every write updates every
