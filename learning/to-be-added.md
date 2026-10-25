@@ -62,5 +62,5 @@ From the earlier architect-POV review — see the conversation for detail:
 
 - [ ] [technical/gen-ai/gen-ai-basics.md](technical/gen-ai/gen-ai-basics.md) — the RAG pipeline section is marked TODO
 - [ ] [technical/data/database-and-data-architecture-questions.md](technical/data/database-and-data-architecture-questions.md) — unanswered question list (much now covered by [data-architecture.md](technical/data/data-architecture.md))
-- [ ] [technical/architecture/design-patterns-reading-list.md](technical/architecture/design-patterns-reading-list.md) — "Topics to Read" placeholder
+- [x] ~~`technical/architecture/design-patterns-reading-list.md` — "Topics to Read" placeholder~~ — replaced by the six-layer [design patterns guide](technical/design-patterns/README.md)
 - [ ] [technical/gen-ai/gen-ai-advanced-reading-list.md](technical/gen-ai/gen-ai-advanced-reading-list.md) — topics-to-read list

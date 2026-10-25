@@ -2,6 +2,7 @@
 
 > The areas that come up in almost every architect-level discussion.
 > Tick items off once you can explain the concept *and* point to where you've used it.
+> Full explanations of every pattern named here: [design patterns guide](../design-patterns/README.md).
 
 ## Contents
 

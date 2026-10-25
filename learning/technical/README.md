@@ -3,7 +3,7 @@
 Technical study notes and interview prep. For the engineering-management track see
 [../management/README.md](../management/README.md). Root index: [../README.md](../README.md).
 
-- **Notes:** 36
+- **Notes:** 46
 - **Status legend:** ✅ full write-up · ✍️ partial / has TODO sections · 📋 checklist / question list · 🌱 stub / reading list only
 - **Planned / not yet written:** [../to-be-added.md](../to-be-added.md)
 
@@ -39,7 +39,7 @@ Within a section, notes are also listed in reading order.
 </details>
 
 <details>
-<summary><b>🏛️ Architecture & system design</b> — 11 notes</summary>
+<summary><b>🏛️ Architecture & system design</b> — 10 notes</summary>
 
 <br>
 
@@ -55,7 +55,6 @@ Within a section, notes are also listed in reading order.
 | [Architecture & design patterns — Q&A](architecture/architecture-and-design-patterns-qa.md) | ✅ | Approaching a new system, domain modeling, DDD tooling, monolith vs microservices vs modular monolith, hexagonal / clean / onion, Inversion of Control, where `@Service` sits, and designing for scalability and HA. |
 | [Diagramming & design tools](architecture/diagramming-and-design-tools.md) | ✅ | Lucidchart, draw.io, PlantUML, and the diagram types — C4 context & component, deployment, sequence, data-flow notation. |
 | [SOLID principles](architecture/solid-principles.md) | ✅ | Short notes with examples and Java snippets. |
-| [Design patterns — reading list](architecture/design-patterns-reading-list.md) | 🌱 | Stub — "topics to read" placeholder. |
 
 <details>
 <summary>Detailed contents — <i>How to design a system from scratch</i></summary>
@@ -105,6 +104,29 @@ cost, bulkhead vs rate limiter vs circuit breaker vs load shedding, idempotency 
 **Part 6** is a 20-question self-test.
 
 </details>
+
+</details>
+
+<details>
+<summary><b>🧩 Design patterns</b> — 11 notes</summary>
+
+<br>
+
+Design patterns at every scale, from a class to an enterprise, in ten files plus a hub. Each pattern has **one home**; the hub holds the master index, an A–Z locator, a "same idea at every scale" table, a problem → pattern chooser and the interview top 25.
+
+| Note | | What's in it |
+|---|---|---|
+| [Design patterns — main guide (hub)](design-patterns/README.md) | ✍️ | Map of the ten files, one-home and naming rules, cross-scale table, master index, A–Z locator (210 entries), "I have this problem" chooser, interview top 25. |
+| [01 Object-level patterns](design-patterns/01-object-level-patterns.md) | ✍️ | GoF creational, structural and behavioural patterns with Java sketches, extras, concurrency patterns, confusable-pairs table, Spring/JDK mapping. |
+| [02 Application internals](design-patterns/02-application-internals.md) | ✍️ | Layered, hexagonal, vertical slice; PoEAA domain-logic and data-access patterns; MV* and frontend patterns; DI and component principles. |
+| [03 Architecture styles & decomposition](design-patterns/03-architecture-styles-and-decomposition.md) | ✍️ | Modular monolith, microkernel, service-based, microservices, SOA, serverless; decomposition by capability and subdomain; monolith-first path. |
+| [04 Distributed data, consistency & coordination](design-patterns/04-distributed-data-consistency-and-coordination.md) | ✍️ | Saga, 2PC, outbox, CDC, CQRS, event sourcing, replication, sharding, consistent hashing, leader election, fencing, consensus, consistency models. |
+| [05 Distributed communication, resilience & scaling](design-patterns/05-distributed-communication-resilience-and-scaling.md) | ✍️ | API gateway, BFF, sidecar, mesh; timeout, retry, circuit breaker, bulkhead, rate limiting, load shedding; caching, CDN, static stability. |
+| [06 Integration patterns](design-patterns/06-integration-patterns.md) | ✍️ | The four integration styles, API/protocol styles, EIP channels/routing/transformation/endpoints, idempotent receiver, ACL, API-era patterns, topologies, enterprise-scale integration. |
+| [07 Enterprise patterns](design-patterns/07-enterprise-patterns.md) | ✍️ | Strangler fig, 6 Rs, MDM, lake/lakehouse/medallion/data mesh, tenancy and cells, Team Topologies, platform engineering, DR strategies, zero trust, governance. |
+| [08 Cross-cutting concerns](design-patterns/08-cross-cutting-concerns.md) | ✍️ | Security, observability, config and feature toggles, data hygiene, error handling, testing, delivery and release strategies. |
+| [09 AI & LLM application patterns](design-patterns/09-ai-llm-application-patterns.md) | ✍️ | Workflows, agents, RAG, guardrails, LLM gateway, evals. |
+| [10 Anti-patterns & principles](design-patterns/10-anti-patterns-and-principles.md) | ✍️ | 40+ named anti-patterns, design principles and heuristics, a method for choosing patterns. |
 
 </details>
 
@@ -317,7 +339,7 @@ All other notes are the original files, moved and renamed only.
 | `converted_notes/Architecture_Design_Patterns.md` | `technical/architecture/architecture-and-design-patterns-checklist.md` |
 | `converted_notes/CAP Theorem.md` | `technical/security/jwt-and-oauth-authentication.md` |
 | `converted_notes/Data_Architecture.md` | `technical/data/database-and-data-architecture-questions.md` |
-| `converted_notes/Design Patterns.md` | `technical/architecture/design-patterns-reading-list.md` |
+| `converted_notes/Design Patterns.md` | `technical/design-patterns/README.md` (hub; stub replaced by the six-layer guide) |
 | `converted_notes/Design Principles.md` | `technical/architecture/solid-principles.md` |
 | `converted_notes/Gen AI Advanced.md` | `technical/gen-ai/gen-ai-advanced-reading-list.md` |
 | `converted_notes/Gen AI basics.md` | `technical/gen-ai/gen-ai-basics.md` |
