@@ -3,7 +3,7 @@
 Technical study notes and interview prep. For the engineering-management track see
 [../management/README.md](../management/README.md). Root index: [../README.md](../README.md).
 
-- **Notes:** 46
+- **Notes:** 47
 - **Status legend:** ✅ full write-up · ✍️ partial / has TODO sections · 📋 checklist / question list · 🌱 stub / reading list only
 - **Planned / not yet written:** [../to-be-added.md](../to-be-added.md)
 
@@ -264,7 +264,7 @@ architect checklist.
 </details>
 
 <details>
-<summary><b>🤖 Gen AI</b> — 3 notes</summary>
+<summary><b>🤖 Gen AI</b> — 4 notes</summary>
 
 <br>
 
@@ -272,6 +272,7 @@ architect checklist.
 |---|---|---|
 | [Gen AI basics](gen-ai/gen-ai-basics.md) | ✍️ | Transformer architecture & query processing, latent diffusion models, vectors vs tensors, transformers vs LLMs, AI vs ML vs deep learning vs Gen AI, grounding vs fine-tuning. **RAG-pipeline section still TODO.** |
 | [Agentic reverse-engineering & migration pipeline](gen-ai/agentic-migration-notes.md) | ✅ | A worked agentic system: staged agents that reverse-engineer a legacy codebase into layered documentation, with grounding, evaluation, and ~30 interview questions. See detail below. |
+| [NOOA learning plan](gen-ai/nooa-learning-plan.md) | ✅ | Beginner-to-advanced path for NVIDIA Object-Oriented Agents: NeMo big picture, agent basics without a framework, how NOOA differs from LangGraph / CrewAI / DSPy / smolagents, hands-on setup, core concepts (typed I/O, strategies, pass-by-reference, CodeAct, context APIs), exercises and safety. Each topic explained simply first, then in detail. |
 | [Gen AI advanced — reading list](gen-ai/gen-ai-advanced-reading-list.md) | 🌱 | Stub — topics to read (Agentic AI, MCP, A2A protocol, Crew AI, agent-to-agent communication, Tools vs API, MESOP, JADE). |
 
 <details>
