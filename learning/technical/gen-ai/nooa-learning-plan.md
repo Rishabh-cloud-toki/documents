@@ -8,6 +8,10 @@
 > detail before the simple version makes sense — the detail is just the simple idea made precise.
 >
 > **Pareto rule:** Parts 1–4 are the 20% that gives you 80% of NOOA. Part 5 is optional, pick by need.
+>
+> **Companion notes:** [nooa-learning-notes.md](../notes/nooa-learning-notes.md) holds my worked notes for this plan — the
+> questions I asked, Java mappings, and what happened when I ran things locally. Sections below
+> end with **Deep-dives** links into those notes where they exist.
 
 *Written Nov 2026 against NOOA `v0.0.7`. NOOA is research software — APIs may change. If a code
 snippet here disagrees with the repo's `docs/tour.md`, trust the repo.*
@@ -81,6 +85,8 @@ know these, NOOA (and every other framework) is just a variation.
 **Prerequisites** — brush up if shaky: Python classes & type hints (`-> str`), `async`/`await`,
 Pydantic `BaseModel`.
 
+> Deep-dive: [Python refresher with Java mapping — classes, type hints, `async`/`await`, Pydantic](../notes/nooa-learning-notes.md#part-0--prerequisites-python-refresher-with-java-mapping)
+
 ### 1.1 An LLM call
 
 **Simply:** you send text, you get text back. That's it. The model has no memory between calls
@@ -88,6 +94,9 @@ and cannot *do* anything — it can only write.
 
 **In detail:** each call is stateless. Anything the model should "remember" must be sent again
 in the next call. This is why context (1.5) matters so much.
+
+> Deep-dives: [1.1 LLM call](../notes/nooa-learning-notes.md#11-llm-call) ·
+> [how NOOA builds the messages for you](../notes/nooa-learning-notes.md#nooa-11--llm-call--conversation)
 
 ### 1.2 Structured output
 
@@ -98,6 +107,9 @@ and you check it filled the form correctly.
 JSON, your code validates it. If validation fails you can send the error back and ask again.
 *NOOA does this automatically using the method's return type.*
 
+> Deep-dives: [1.2 structured output](../notes/nooa-learning-notes.md#12-structured-output) ·
+> [NOOA 1.2 — the return type is the schema](../notes/nooa-learning-notes.md#nooa-12--structured-output)
+
 ### 1.3 Tools
 
 **Simply:** tools are functions the model is *allowed to ask for*. The model says "please run
@@ -106,6 +118,10 @@ JSON, your code validates it. If validation fails you can send the error back an
 **In detail:** in most frameworks each tool is described to the model as a JSON schema (name,
 description, parameters). The model replies with a JSON "tool call"; the framework executes the
 function and appends the result to the conversation. *In NOOA, tools are just normal methods.*
+
+> Deep-dives: [1.3 tools](../notes/nooa-learning-notes.md#13-tools) ·
+> [NOOA 1.3 — tools are methods](../notes/nooa-learning-notes.md#nooa-13--tools) ·
+> [the model writes code, the harness runs it](../notes/nooa-learning-notes.md#-q-the-model-only-takes-and-outputs-tokens--so-the-model-outputs-code-and-the-harness-executes-it)
 
 ### 1.4 The agent loop
 
@@ -127,6 +143,11 @@ while True:
 
 *In NOOA, every method whose body is `...` is one of these loops.*
 
+> Deep-dives: [1.4 agent loop](../notes/nooa-learning-notes.md#14-agent-loop) ·
+> [what a "harness" is](../notes/nooa-learning-notes.md#what-is-a-harness) ·
+> [NOOA 1.4 — the CodeAct loop and its stop condition](../notes/nooa-learning-notes.md#nooa-14--agent-loop) ·
+> [plain vs NOOA summary table](../notes/nooa-learning-notes.md#summary-table)
+
 ### 1.5 Context
 
 **Simply:** context is *everything the model can see right now* — the instructions, the
@@ -136,6 +157,8 @@ conversation so far, the tool results. It has a size limit and you pay per token
 grows; too big and it gets slow, expensive, and the model loses focus. Much of "agent
 engineering" is deciding what to keep, summarise, or drop. *NOOA exposes this via `self.context`
 and `self.events` (Part 4.7).*
+
+> Deep-dive: [ContextManager, EventManager, render order and the three memory layers](../notes/nooa-learning-notes.md#nooa-11--llm-call--conversation)
 
 ### 1.6 JSON tool calls vs. code as action
 
@@ -149,6 +172,9 @@ and `self.events` (Part 4.7).*
 what would take ten JSON calls (e.g. "for each file, read it, keep the ones mentioning X"). That
 saves tokens and time, but means running model-written code — a safety concern (Part 6).
 **This is NOOA's central bet.**
+
+> Deep-dives: [plain tool calling vs NOOA, side by side](../notes/nooa-learning-notes.md#nooa-13--tools) ·
+> [only two tools, ever](../notes/nooa-learning-notes.md#class-methods-are-not-tools)
 
 ### 🛠 Exercise 1 (most valuable exercise in this plan)
 
@@ -207,6 +233,9 @@ class Analyst(Agent, llm=llm):
 From the outside you just call `await agent.summarize("EMEA")` — callers don't need to know an
 LLM is involved.
 
+> Deep-dives: [2.1 the one-sentence idea](../notes/nooa-learning-notes.md#21-the-one-sentence-idea) ·
+> [core idea: the `...` body](../notes/nooa-learning-notes.md#core-idea-the--body)
+
 ### 2.2 The four things that make NOOA different
 
 **Simply first:**
@@ -227,6 +256,10 @@ LLM is involved.
 3. **Typed I/O with retry.** Return type `Report` → NOOA validates. On failure, the error goes back
    to the model and the loop continues.
 4. **Plain Python orchestration.** No DSL. Control flow is ordinary Python.
+
+> Deep-dives: [2.2 the four differences](../notes/nooa-learning-notes.md#22-the-four-things-that-make-nooa-different) ·
+> [the model gets a preview, not the whole object](../notes/nooa-learning-notes.md#-q-the-ai-gets-the-real-data-object--it-only-gets-a-preview-not-the-whole-object-right) ·
+> [type-checking and retries happen in both strategies](../notes/nooa-learning-notes.md#-q-type-checked-and-retries--depends-on-the-strategy-predict-or-codeact)
 
 ### 2.3 Comparison with other frameworks
 
@@ -282,6 +315,14 @@ uv run nooa connect     # wizard: provider, API key, exact model, alias e.g. "my
 - **Windows:** use WSL 2 (native Windows errors on `import nooa`).
 - Optional extras: `nooa[memory]`, `nooa[acp]`, `nooa[bench]`, `nooa[viewer]`.
 
+> Deep-dives: [3.1 install](../notes/nooa-learning-notes.md#31-install) ·
+> [what `uv` is, mapped to Java](../notes/nooa-learning-notes.md#what-uv-is-java-mapping) ·
+> [optional extras](../notes/nooa-learning-notes.md#optional-extras) ·
+> [why a Claude subscription can't be used](../notes/nooa-learning-notes.md#-q-can-i-use-my-claude-subscription) ·
+> [connecting a local Ollama model](../notes/nooa-learning-notes.md#connecting-a-local-model-ollama) ·
+> [wizard values](../notes/nooa-learning-notes.md#wizard-values-custom-endpoint) ·
+> [which local models worked](../notes/nooa-learning-notes.md#model-choice--what-happened)
+
 ### 3.2 Your first agent
 
 ```python
@@ -312,6 +353,10 @@ asyncio.run(main())
 
 Save as `first_agent.py`, run `uv run python first_agent.py`.
 
+> Deep-dives: [3.2 first agent](../notes/nooa-learning-notes.md#32-first-agent) ·
+> [the qwen2.5-coder error](../notes/nooa-learning-notes.md#error-seen-with-qwen25-coder) ·
+> [CodeAct tool-call mechanics](../notes/nooa-learning-notes.md#-codeact-tool-call-mechanics)
+
 ### 🛠 Exercise 3 — prove "the signature is the prompt"
 
 Change one thing at a time and re-run:
@@ -323,6 +368,8 @@ Change one thing at a time and re-run:
 
 Each change alters the output. That's the whole mental model.
 
+> Deep-dive: [renaming the method changed the output](../notes/nooa-learning-notes.md#32-first-agent)
+
 ### 3.3 Turn on tracing
 
 ```bash
@@ -332,6 +379,13 @@ uv run nooa start-dev    # trace viewer at http://localhost:5001
 
 Re-run your agent and look at the trace. **If the viewer isn't running, tracing is silently
 disabled** — start it first.
+
+> Deep-dives: [3.3 tracing](../notes/nooa-learning-notes.md#33-tracing) ·
+> [trace vs event history](../notes/nooa-learning-notes.md#trace-vs-event-history--not-the-same-thing) ·
+> [span vs event](../notes/nooa-learning-notes.md#span-vs-event) ·
+> [reading a real trace](../notes/nooa-learning-notes.md#reading-a-real-trace-analyze_feedback-qwen38b-codeact) ·
+> [the prefill cell](../notes/nooa-learning-notes.md#the-prefill-cell) ·
+> [how to read any trace](../notes/nooa-learning-notes.md#how-to-read-any-trace-checklist)
 
 ### 3.4 Read the official tour
 
@@ -376,6 +430,9 @@ class FeedbackAgent(Agent, llm=llm):
         ...
 ```
 
+> Deep-dives: [NOOA 1.2 — structured output](../notes/nooa-learning-notes.md#nooa-12--structured-output) ·
+> [does NOOA retry by itself?](../notes/nooa-learning-notes.md#-q-does-nooa-retry-by-itself--ie-ask-the-llm-again-if-the-output-is-wrong)
+
 ### 4.2 Strategies — how an `...` method runs
 
 **Simply:** a strategy is the *way* the AI does a task. Quick answer, or think-and-code in a loop.
@@ -402,6 +459,10 @@ class Describer(Agent, llm=llm):
 when the task needs tools or several steps. Per-method overrides (model, truncation, context)
 are possible — e.g. a small model for one easy method.
 
+> Deep-dives: [Predict vs CodeAct](../notes/nooa-learning-notes.md#core-idea-the--body) ·
+> [how is Predict "one shot" if it retries?](../notes/nooa-learning-notes.md#-q-how-is-predict-one-shot-if-it-retries) ·
+> [even the final answer is a tool call](../notes/nooa-learning-notes.md#even-the-final-answer-is-a-tool-call)
+
 ### 4.3 Normal methods as tools
 
 **Simply:** any method with real code is something the AI can use.
@@ -409,6 +470,10 @@ are possible — e.g. a small model for one easy method.
 **In detail:** ordinary methods stay deterministic Python. Inside CodeAct, the model can call them
 on `self`. The design skill is deciding what's **deterministic** (write it yourself — reliable,
 free) versus what needs **judgement** (leave it `...`).
+
+> Deep-dives: [NOOA 1.3 — what counts as a tool](../notes/nooa-learning-notes.md#nooa-13--tools) ·
+> [class methods are not tools](../notes/nooa-learning-notes.md#class-methods-are-not-tools) ·
+> [class or plain function? a rule of thumb](../notes/nooa-learning-notes.md#-q-which-methods-go-in-a-class-vs-a-file-any-thumb-rule)
 
 ### 4.4 State on `self`
 
@@ -418,6 +483,9 @@ free) versus what needs **judgement** (leave it `...`).
 fields are allowed — attaching functions to `self` is blocked. Variables the model creates in the
 REPL are scoped to that one method call.
 
+> Deep-dives: [the three memory layers](../notes/nooa-learning-notes.md#nooa-11--llm-call--conversation) ·
+> [class vs instance variables](../notes/nooa-learning-notes.md#-q-dont-i-need-to-declare-name-and-model-at-the-top-of-the-class)
+
 ### 4.5 Pass-by-reference
 
 **Simply:** the AI gets a peek at your data plus the real object to work with — not a giant text dump.
@@ -426,6 +494,10 @@ REPL are scoped to that one method call.
 is bound in its REPL. So passing a 100,000-item list costs a few tokens, and the model processes
 it with code. (Revisit Part 2.2 — it should click now.)
 
+> Deep-dives: [flagged: preview, not the real object](../notes/nooa-learning-notes.md#-flagged-as-important) ·
+> [the prefill cell](../notes/nooa-learning-notes.md#the-prefill-cell) ·
+> [printed output is what the model sees](../notes/nooa-learning-notes.md#-printed-output-is-what-the-model-sees)
+
 ### 4.6 Code as action — what the model is allowed to do
 
 **Simply:** the AI writes Python cells, like you in a Jupyter notebook.
@@ -433,6 +505,9 @@ it with code. (Revisit Part 2.2 — it should click now.)
 **In detail:** cells run in a Jupyter-style session with `self`, imports and helpers injected.
 `eval`, `exec`, `compile`, `input` and blocking calls are rejected. Generated code goes through
 AST checks and module deny-lists — see Part 6 for why that's not enough on its own.
+
+> Deep-dives: [NOOA 1.3 — where code runs, errors, safety (points d, g, h)](../notes/nooa-learning-notes.md#nooa-13--tools) ·
+> [the model decides, the harness executes](../notes/nooa-learning-notes.md#the-llm-only-outputs-tokens--so-who-decides)
 
 ### 4.7 Context & harness APIs
 
@@ -449,6 +524,9 @@ recent_python = self.events.query(type="PythonOutput", limit=3) # look back
 self.events.collapse(start_tag, end_tag, summary_text="Model generated summary.")  # compress
 ```
 
+> Deep-dives: [ContextManager and EventManager](../notes/nooa-learning-notes.md#nooa-11--llm-call--conversation) ·
+> [where the inputs and return type go](../notes/nooa-learning-notes.md#-q-do-the-input-types-and-return-type-go-into-the-contextmanager)
+
 ### 4.8 Orchestration — loops of loops
 
 **Simply:** to combine agents or steps, just write normal Python.
@@ -456,6 +534,8 @@ self.events.collapse(start_tag, end_tag, summary_text="Model generated summary."
 **In detail:** outer control flow is ordinary Python (`if`, `for`, `asyncio.gather`). Inside a
 cell, the model can define `@strategy` functions and fan out with `asyncio.gather`. Sub-agents
 are supported. Calls into the *same* agent are serialised; *different* agents run in parallel.
+
+> Deep-dive: [loop engineering — outer and inner loops, ordering](../notes/nooa-learning-notes.md#nooa-14--agent-loop)
 
 ### 🛠 Exercise 4 — ticket triage agent
 
@@ -520,6 +600,8 @@ Treat it like running code from a stranger.
 **Rule:** experiments on your laptop with toy data — fine. Anything touching real files, secrets or
 networks — run it in a container.
 
+> Deep-dive: [safety: code runs in your own process](../notes/nooa-learning-notes.md#nooa-13--tools)
+
 ---
 
 ## Glossary
@@ -538,6 +620,9 @@ networks — run it in a container.
 | **Trace** | A recorded timeline of everything the agent did — viewed in the trace viewer |
 | **Typed I/O** | Inputs/outputs checked against Python type hints |
 
+> Deep-dives: [what a harness is](../notes/nooa-learning-notes.md#what-is-a-harness) ·
+> [trace vs event history](../notes/nooa-learning-notes.md#trace-vs-event-history--not-the-same-thing)
+
 ---
 
 ## Progress checklist
@@ -554,6 +639,7 @@ networks — run it in a container.
 
 ## Sources
 
+- Companion notes — [nooa-learning-notes.md](../notes/nooa-learning-notes.md)
 - NOOA repo — <https://github.com/NVIDIA-NeMo/labs-OO-Agents> (README, `docs/`, `examples/`, `notebook_tutorials/`)
 - Paper: *NVIDIA-labs OO Agents: Native Python Object-Oriented Agents* — <https://www.alphaxiv.org/abs/2607.20709>
 - NVIDIA blog: *Six agent harness capabilities for higher model performance* — <https://developer.nvidia.com/blog/six-agent-harness-capabilities-for-higher-model-performance/>
